@@ -6,6 +6,7 @@ import { useQuestion, useCreateAnswer } from "../entities/question/api";
 import type { Question, Answer } from "../entities/question/types";
 import { useAuth } from "../app/providers/useAuth";
 import { CodeBlock } from "../shared/ui/CodeBlock";
+import { ExpandableText } from "../shared/ui/ExpandableText";
 
 const schema = z.object({
   content: z.string().min(1, "Ответ не может быть пустым"),
@@ -55,8 +56,15 @@ export default function QuestionPage() {
               <li
                 key={a.id}
                 className="border rounded p-2 text-sm bg-white dark:bg-neutral-800">
-                <div className="flex items-center justify-between">
-                  <span>{a.content}</span>
+                <div className="flex items-start justify-between gap-2">
+                  <ExpandableText
+                    text={a.content}
+                    mode="toggle"
+                    moreLabel="Показать весь"
+                    lessLabel="Показать меньше"
+                    className="flex-1"
+                    maxHeight={120}
+                  />
                   {a.isCorrect && (
                     <span className="text-green-600 text-xs">correct</span>
                   )}

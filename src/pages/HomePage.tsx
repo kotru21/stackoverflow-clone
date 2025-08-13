@@ -4,6 +4,8 @@ import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useQuestions } from "../entities/question/api";
 import type { Question } from "../entities/question/types";
 import { CodeBlock } from "../shared/ui/CodeBlock";
+import { ExpandableText } from "../shared/ui/ExpandableText";
+import { useNavigate } from "react-router-dom";
 
 type QuestionCardProps = {
   id: string | number;
@@ -22,6 +24,7 @@ function QuestionCard({
   user,
   answersCount,
 }: QuestionCardProps) {
+  const navigate = useNavigate();
   return (
     <article className="border rounded p-3 space-y-2 bg-white text-black dark:bg-neutral-800 dark:text-white">
       <div className="flex items-start justify-between gap-3 text-sm text-gray-600 dark:text-gray-400">
@@ -30,9 +33,12 @@ function QuestionCard({
         </h2>
         <span className="shrink-0">@{user.username}</span>
       </div>
-      <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-        {description}
-      </p>
+      <ExpandableText
+        text={description}
+        mode="navigate"
+        onMoreClick={() => navigate(`/questions/${id}`)}
+        className="text-sm"
+      />
       {attachedCode && <CodeBlock code={attachedCode} className="max-h-64" />}
       <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
         {typeof answersCount !== "undefined" && (

@@ -36,7 +36,7 @@ export function CodeBlock({
         }: RenderProps) => (
           <pre
             className={cls + " m-0 p-2 text-sm overflow-auto"}
-            style={{ ...style, background: "transparent" }}>
+            style={{ ...style, backgroundColor: "transparent" }}>
             {tokens.map((line: PrismToken[], i: number) => (
               <div key={i} {...getLineProps({ line })}>
                 {line.map((token: PrismToken, key: number) => (
