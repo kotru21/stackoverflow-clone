@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import { memo } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -53,23 +54,7 @@ export default function QuestionPage() {
         <ul className="space-y-2">
           {Array.isArray((question as Question).answers) &&
             (question as Question).answers!.map((a: Answer) => (
-              <li
-                key={a.id}
-                className="border rounded p-2 text-sm bg-white dark:bg-neutral-800">
-                <div className="flex items-start justify-between gap-2">
-                  <ExpandableText
-                    text={a.content}
-                    mode="toggle"
-                    moreLabel="Показать весь"
-                    lessLabel="Показать меньше"
-                    className="flex-1"
-                    maxHeight={120}
-                  />
-                  {a.isCorrect && (
-                    <span className="text-green-600 text-xs">correct</span>
-                  )}
-                </div>
-              </li>
+              <AnswerItem key={a.id} a={a} />
             ))}
         </ul>
       </div>
@@ -98,3 +83,21 @@ export default function QuestionPage() {
     </div>
   );
 }
+
+const AnswerItem = memo(function AnswerItem({ a }: { a: Answer }) {
+  return (
+    <li className="border rounded p-2 text-sm bg-white dark:bg-neutral-800">
+      <div className="flex items-start justify-between gap-2">
+        <ExpandableText
+          text={a.content}
+          mode="toggle"
+          moreLabel="Показать весь"
+          lessLabel="Показать меньше"
+          className="flex-1"
+          maxHeight={120}
+        />
+        {a.isCorrect && <span className="text-green-600 text-xs">correct</span>}
+      </div>
+    </li>
+  );
+});

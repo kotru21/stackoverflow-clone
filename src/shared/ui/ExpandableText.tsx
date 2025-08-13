@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type ExpandableTextProps = {
   text: string;
@@ -11,7 +11,7 @@ type ExpandableTextProps = {
   lessLabel?: string; // default: "Показать меньше"
 };
 
-export function ExpandableText({
+export const ExpandableText = memo(function ExpandableText({
   text,
   className,
   maxHeight = 160,
@@ -55,15 +55,15 @@ export function ExpandableText({
     return expanded ? {} : { maxHeight: `${maxHeight}px` };
   }, [expanded, maxHeight]);
 
-  const handleMore = () => {
+  const handleMore = useCallback(() => {
     if (mode === "navigate") {
       onMoreClick?.();
       return;
     }
     setExpanded(true);
-  };
+  }, [mode, onMoreClick]);
 
-  const handleLess = () => setExpanded(false);
+  const handleLess = useCallback(() => setExpanded(false), []);
 
   return (
     <div className={className}>
@@ -117,4 +117,4 @@ export function ExpandableText({
       )}
     </div>
   );
-}
+});

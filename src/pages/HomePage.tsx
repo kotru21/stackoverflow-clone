@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useQuestions } from "../entities/question/api";
@@ -16,7 +16,7 @@ type QuestionCardProps = {
   answersCount?: number;
 };
 
-function QuestionCard({
+const QuestionCard = memo(function QuestionCard({
   id,
   title,
   description,
@@ -54,7 +54,7 @@ function QuestionCard({
       </div>
     </article>
   );
-}
+});
 
 export default function HomePage() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =

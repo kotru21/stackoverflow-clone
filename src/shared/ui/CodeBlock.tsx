@@ -4,6 +4,7 @@ import type {
   RenderProps,
   Token as PrismToken,
 } from "prism-react-renderer";
+import { memo, useMemo } from "react";
 import { useTheme } from "../../app/providers/useTheme";
 
 export type CodeBlockProps = {
@@ -12,14 +13,19 @@ export type CodeBlockProps = {
   className?: string;
 };
 
-export function CodeBlock({
+export const CodeBlock = memo(function CodeBlock({
   code,
   language = "tsx",
   className,
 }: CodeBlockProps) {
   const { theme } = useTheme();
-  const prismTheme =
-    theme === "dark" ? themes.gruvboxMaterialDark : themes.gruvboxMaterialLight;
+  const prismTheme = useMemo(
+    () =>
+      theme === "dark"
+        ? themes.gruvboxMaterialDark
+        : themes.gruvboxMaterialLight,
+    [theme]
+  );
 
   return (
     <div
@@ -49,4 +55,4 @@ export function CodeBlock({
       </Highlight>
     </div>
   );
-}
+});
