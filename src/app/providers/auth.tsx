@@ -30,7 +30,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await refresh();
     } catch (e) {
       const err = toHttpError(e);
-      throw new Error(err.message || "Login failed");
+      const error = new Error(err.message || "Login failed");
+      (error as Error & { status?: number }).status = err.status;
+      throw error;
     }
   };
 
@@ -44,7 +46,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await http.post("/register", { username, password });
     } catch (e) {
       const err = toHttpError(e);
-      throw new Error(err.message || "Register failed");
+      const error = new Error(err.message || "Register failed");
+      (error as Error & { status?: number }).status = err.status;
+      throw error;
     }
   };
 

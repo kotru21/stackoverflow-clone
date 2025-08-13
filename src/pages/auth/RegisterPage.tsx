@@ -6,9 +6,16 @@ import { Link, useNavigate } from "react-router-dom";
 
 const schema = z
   .object({
-    username: z.string().min(5),
-    password: z.string().min(6),
-    confirm: z.string().min(6),
+    username: z.string().trim().min(5),
+    password: z
+      .string()
+      .trim()
+      .min(6)
+      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/, {
+        message:
+          "Пароль должен содержать минимум 1 строчную, 1 заглавную букву, 1 цифру и 1 символ",
+      }),
+    confirm: z.string().trim().min(6),
   })
   .refine((v) => v.password === v.confirm, {
     message: "Пароли не совпадают",
@@ -30,11 +37,39 @@ export default function RegisterPage() {
   });
 
   const onSubmit = async (data: FormData) => {
+    const username = data.username.trim();
+    const password = data.password.trim();
     try {
-      await doRegister(data.username, data.password);
+      await doRegister(username, password);
       navigate("/login", { replace: true });
-    } catch (e) {
-      const message = e instanceof Error ? e.message : "Ошибка регистрации";
+    } catch (e: unknown) {
+      let message = e instanceof Error ? e.message : "Ошибка регистрации";
+      // Provide friendlier messages for common validation cases
+      const hasStatus =
+        typeof e === "object" &&
+        e !== null &&
+        "status" in (e as Record<string, unknown>);
+      if (hasStatus) {
+        const status = (e as Record<string, unknown>).status as
+          | number
+          | undefined;
+        if (status === 409)
+          message = "Пользователь с таким именем уже существует";
+        if (status === 422) message = message || "Некорректные данные";
+      }
+      // Translate server's password policy message if it comes in English
+      if (
+        /Password must contain at least one lowercase letter, one uppercase letter, one number and one symbol!?/i.test(
+          message
+        )
+      ) {
+        message =
+          "Пароль должен содержать минимум 1 строчную, 1 заглавную букву, 1 цифру и 1 символ";
+      }
+      if (message && /^validation failed!?$/i.test(message)) {
+        message =
+          "Проверьте имя пользователя (не короче 5) и пароль (не короче 6)";
+      }
       setError("root", { message });
     }
   };

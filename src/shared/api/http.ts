@@ -1,7 +1,13 @@
 import axios from "axios";
 
+// Use relative '/api' by default to leverage Vite proxy (avoids CORS with credentials).
+// Can be overridden via VITE_API_BASE_URL if your API supports proper CORS for credentials.
+const API_BASE_URL =
+  (import.meta as unknown as { env?: Record<string, string | undefined> }).env
+    ?.VITE_API_BASE_URL || "/api";
+
 export const http = axios.create({
-  baseURL: "/api",
+  baseURL: API_BASE_URL,
   withCredentials: true,
 });
 
@@ -19,28 +25,80 @@ export type HttpError = {
 
 export function toHttpError(e: unknown): HttpError {
   if (typeof e === "object" && e !== null) {
-    const errObj = e as Record<string, unknown>;
+    const anyE = e as Record<string, unknown>;
     const hasResponse =
-      "response" in errObj &&
-      typeof errObj.response === "object" &&
-      errObj.response !== null;
-    const res = hasResponse ? (errObj.response as Record<string, unknown>) : undefined;
-    const status = res && "status" in res ? (res.status as number | undefined) : undefined;
-    const data = res && "data" in res ? (res.data as unknown) : undefined;
-
-    const extractMessage = (val: unknown): string | undefined => {
-      if (typeof val === "string") return val;
-      if (Array.isArray(val)) return (val as unknown[]).map(String).join("\n");
-      if (val && typeof val === "object") {
-        const obj = val as Record<string, unknown>;
-        if (typeof obj.message === "string") return obj.message as string;
-        if (Array.isArray(obj.message)) return (obj.message as unknown[]).map(String).join("\n");
-        if (Array.isArray(obj.errors)) return (obj.errors as unknown[]).map(String).join("\n");
+      "response" in anyE &&
+      typeof anyE.response === "object" &&
+      anyE.response !== null;
+    const status =
+      hasResponse && "status" in (anyE.response as Record<string, unknown>)
+        ? ((anyE.response as Record<string, unknown>).status as
+            | number
+            | undefined)
+        : undefined;
+    const data =
+      hasResponse && "data" in (anyE.response as Record<string, unknown>)
+        ? ((anyE.response as Record<string, unknown>).data as Record<
+            string,
+            unknown
+          >)
+        : undefined;
+    // Try to pick a useful message from common API error shapes
+    let message: string | undefined;
+    if (data && typeof data === "object") {
+      const rec = data as Record<string, unknown>;
+      const msg = rec["message"];
+      if (typeof msg === "string") message = msg;
+      // NestJS/class-validator often returns { message: string[] }
+      else if (Array.isArray(msg)) {
+        const arr = msg as unknown[];
+        const firstStr = arr.find((it) => typeof it === "string");
+        if (typeof firstStr === "string") message = firstStr;
+        else if (arr.length) {
+          const first = arr[0];
+          if (typeof first === "object" && first !== null) {
+            const obj = first as Record<string, unknown>;
+            const constraints = obj["constraints"];
+            if (constraints && typeof constraints === "object") {
+              const values = Object.values(
+                constraints as Record<string, unknown>
+              );
+              const cFirst = values.find((v) => typeof v === "string");
+              if (typeof cFirst === "string") message = cFirst;
+            }
+          }
+        }
+      } else {
+        const errorMsg = rec["error"];
+        const detail = rec["detail"];
+        if (typeof errorMsg === "string") message = errorMsg;
+        else if (typeof detail === "string") message = detail;
+        else if (Array.isArray(rec["errors"])) {
+          const arr = rec["errors"] as unknown[];
+          // If API returns array of strings
+          const firstString = arr.find((it) => typeof it === "string");
+          if (typeof firstString === "string") message = firstString;
+          else {
+            // Try documented shape: { field: string; failures: string[]; receivedValue?: unknown }
+            const firstObj = arr.find(
+              (it) => typeof it === "object" && it !== null
+            );
+            if (firstObj) {
+              const obj = firstObj as Record<string, unknown>;
+              const failures = obj["failures"];
+              if (Array.isArray(failures)) {
+                const firstFailure = (failures as unknown[]).find(
+                  (f) => typeof f === "string"
+                );
+                if (typeof firstFailure === "string") message = firstFailure;
+              }
+            }
+          }
+        }
       }
-      return undefined;
-    };
-
-    const message = extractMessage(data) ?? (typeof errObj.message === "string" ? (errObj.message as string) : undefined);
+    }
+    if (!message && typeof anyE.message === "string")
+      message = anyE.message as string;
     return { status, message };
   }
   return { message: String(e) };
