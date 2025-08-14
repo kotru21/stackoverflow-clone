@@ -5,7 +5,8 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { http } from "../../shared/api/http";
-import type { Paginated, Question } from "./types";
+import type { Question } from "./types";
+import type { Paginated } from "../../shared/types/pagination";
 import { normalizePaginated, unwrapData } from "../../shared/api/normalize";
 
 export function useQuestions(params: {
@@ -55,9 +56,10 @@ export function useQuestion(id?: string | number) {
 
 export function useCreateAnswer(questionId: string | number) {
   const qc = useQueryClient();
+  type CreateAnswerResult = unknown;
   return useMutation({
     mutationFn: async (content: string) => {
-      const res = await http.post("/answers", {
+      const res = await http.post<CreateAnswerResult>("/answers", {
         content,
         questionId: Number(questionId),
       });

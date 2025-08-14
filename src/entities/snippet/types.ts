@@ -11,16 +11,4 @@ export type Snippet = {
   commentsCount?: number;
 };
 
-export type PaginatedMeta = {
-  itemsPerPage: number;
-  totalItems: number;
-  currentPage: number;
-  totalPages: number;
-};
-
-export type Paginated<T> = {
-  data: T[];
-  meta: PaginatedMeta;
-};
-
 export type SnippetMark = "like" | "dislike" | "none";

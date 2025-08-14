@@ -5,7 +5,8 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { http } from "../../shared/api/http";
-import type { Paginated, Snippet, SnippetMark } from "./types";
+import type { Snippet, SnippetMark } from "./types";
+import type { Paginated } from "../../shared/types/pagination";
 import { normalizePaginated } from "../../shared/api/normalize";
 
 export function useSnippets(params: {
@@ -41,10 +42,12 @@ export function useSnippets(params: {
 }
 
 export function useSnippet(id?: number) {
-  return useQuery({
-    queryKey: ["snippets", id],
+  return useQuery<Snippet>({
+    queryKey: ["snippet", id],
     queryFn: async () => (await http.get<Snippet>(`/snippets/${id}`)).data,
     enabled: !!id,
+    retry: 1,
+    refetchOnWindowFocus: false,
   });
 }
 
@@ -57,7 +60,7 @@ export function useMarkSnippet(id: number) {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["snippets"] });
-      qc.invalidateQueries({ queryKey: ["snippets", id] });
+      qc.invalidateQueries({ queryKey: ["snippet", id] });
     },
   });
 }
