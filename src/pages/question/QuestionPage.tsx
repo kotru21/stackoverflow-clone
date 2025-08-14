@@ -1,13 +1,12 @@
 import { useParams, Link } from "react-router-dom";
-import { memo } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuestion, useCreateAnswer } from "../entities/question/api";
-import type { Question, Answer } from "../entities/question/types";
-import { useAuth } from "../app/providers/useAuth";
-import { CodeBlock } from "../shared/ui/CodeBlock";
-import { ExpandableText } from "../shared/ui/ExpandableText";
+import { useQuestion, useCreateAnswer } from "../../entities/question/api";
+import type { Question, Answer } from "../../entities/question/types";
+import { useAuth } from "../../app/providers/useAuth";
+import QuestionDetailsView from "./ui/QuestionDetailsView";
+import AnswerItemView from "./ui/AnswerItemView";
 
 const schema = z.object({
   content: z.string().min(1, "Ответ не может быть пустым"),
@@ -42,19 +41,21 @@ export default function QuestionPage() {
           ← Назад
         </Link>
       </div>
-      <h1 className="text-2xl font-semibold">{(question as Question).title}</h1>
-      <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-        {(question as Question).description}
-      </p>
-      {(question as Question).attachedCode && (
-        <CodeBlock code={(question as Question).attachedCode!} />
-      )}
+      <QuestionDetailsView
+        title={(question as Question).title}
+        description={(question as Question).description}
+        attachedCode={(question as Question).attachedCode}
+      />
       <div>
         <h2 className="text-xl font-semibold mb-2">Ответы</h2>
         <ul className="space-y-2">
           {Array.isArray((question as Question).answers) &&
             (question as Question).answers!.map((a: Answer) => (
-              <AnswerItem key={a.id} a={a} />
+              <AnswerItemView
+                key={a.id}
+                content={a.content}
+                isCorrect={a.isCorrect}
+              />
             ))}
         </ul>
       </div>
@@ -83,21 +84,3 @@ export default function QuestionPage() {
     </div>
   );
 }
-
-const AnswerItem = memo(function AnswerItem({ a }: { a: Answer }) {
-  return (
-    <li className="border rounded p-2 text-sm bg-white dark:bg-neutral-800">
-      <div className="flex items-start justify-between gap-2">
-        <ExpandableText
-          text={a.content}
-          mode="toggle"
-          moreLabel="Показать весь"
-          lessLabel="Показать меньше"
-          className="flex-1"
-          maxHeight={120}
-        />
-        {a.isCorrect && <span className="text-green-600 text-xs">correct</span>}
-      </div>
-    </li>
-  );
-});
