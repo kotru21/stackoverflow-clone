@@ -5,7 +5,6 @@ export type Snippet = {
   language: string;
   code: string;
   user: User;
-  // Optional aggregate fields if backend provides them
   likesCount?: number;
   dislikesCount?: number;
   commentsCount?: number;
