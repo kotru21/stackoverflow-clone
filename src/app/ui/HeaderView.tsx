@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 export type HeaderViewProps = {
   user: { username: string } | null;
@@ -13,8 +14,23 @@ export default function HeaderView({
   onToggleTheme,
   onLogout,
 }: HeaderViewProps) {
+  const [atTop, setAtTop] = useState(true);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setAtTop(window.scrollY <= 8);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="px-4 py-3 border-b bg-white text-black dark:bg-neutral-900 dark:text-white">
+    <header
+      className={
+        "sticky top-0 z-50 px-4 border-b bg-white text-black dark:bg-neutral-900 dark:text-white transition-all duration-300 " +
+        (atTop ? "py-5" : "py-2")
+      }>
       <nav className="mx-auto max-w-6xl flex items-center gap-4">
         <Link to="/" className="font-semibold">
           kinda StackOverflow
