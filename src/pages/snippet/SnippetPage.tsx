@@ -1,11 +1,11 @@
 import { useParams } from "react-router-dom";
 import { useSnippet } from "../../entities/snippet/api";
-import { CodeBlock } from "../../shared/ui/CodeBlock";
 import { useAuth } from "../../app/providers/useAuth";
 import { useState } from "react";
 import { http, toHttpError } from "../../shared/api/http";
 import { useQueryClient } from "@tanstack/react-query";
 import { BackLink } from "../../shared/ui/BackLink";
+import SnippetDetailsView from "./ui/SnippetDetailsView";
 
 export default function SnippetPage() {
   const { id } = useParams();
@@ -53,29 +53,15 @@ export default function SnippetPage() {
   return (
     <div className="space-y-4">
       <BackLink />
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">Сниппет #{snippet.id}</h1>
-          <span className="inline-flex items-center rounded bg-gray-100 dark:bg-neutral-700 px-2 py-0.5 text-xs font-medium text-gray-700 dark:text-gray-200">
-            {snippet.language}
-          </span>
-        </div>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Автор: @{snippet.user?.username ?? "unknown"}
-        </p>
-        <CodeBlock code={snippet.code} />
-        <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-          {typeof snippet.likesCount !== "undefined" && (
-            <span>Likes: {snippet.likesCount}</span>
-          )}
-          {typeof snippet.dislikesCount !== "undefined" && (
-            <span>Dislikes: {snippet.dislikesCount}</span>
-          )}
-          {typeof snippet.commentsCount !== "undefined" && (
-            <span>Comments: {snippet.commentsCount}</span>
-          )}
-        </div>
-      </div>
+      <SnippetDetailsView
+        id={snippet.id}
+        language={snippet.language}
+        authorName={snippet.user?.username ?? "unknown"}
+        code={snippet.code}
+        likesCount={snippet.likesCount}
+        dislikesCount={snippet.dislikesCount}
+        commentsCount={snippet.commentsCount}
+      />
 
       {Array.isArray(snippet.comments) && snippet.comments.length > 0 && (
         <div className="space-y-2">
