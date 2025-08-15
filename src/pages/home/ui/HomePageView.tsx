@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { Skeleton } from "../../../shared/ui/Skeleton";
 import type { ReactNode, RefCallback } from "react";
 
 export type HomeRow = {
@@ -59,7 +60,15 @@ function HomePageView({
           </div>
         )}
       </div>
-      {status === "pending" && <p>Загрузка...</p>}
+      {status === "pending" && (
+        <div className="space-y-3">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="">
+              <Skeleton height={160} className="rounded mb-2" />
+            </div>
+          ))}
+        </div>
+      )}
       {!hasItems && status === "success" && (
         <p className="text-gray-500">Ничего не найдено.</p>
       )}
@@ -75,7 +84,11 @@ function HomePageView({
           </div>
         ))}
       </div>
-      {isFetchingNextPage && <p>Загрузка...</p>}
+      {isFetchingNextPage && (
+        <div className="space-y-2">
+          <Skeleton height={16} width={160} />
+        </div>
+      )}
     </div>
   );
 }

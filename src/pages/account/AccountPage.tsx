@@ -15,7 +15,7 @@ import PasswordFormView from "./ui/PasswordFormView";
 export default function AccountPage() {
   const { user: authUser } = useAuth();
   const userId = authUser?.id;
-  const { data: me } = useMe();
+  const { data: me, status: meStatus } = useMe();
   const idForStat = me?.id ?? userId;
   const { data: stat, status: statStatus } = useUserStatistic(idForStat);
   const { mutateAsync: updateMe, isPending: isUpdatingMe } = useUpdateMe();
@@ -62,7 +62,12 @@ export default function AccountPage() {
     <div className="space-y-6">
       <BackLink />
 
-      <AccountInfoView id={me?.id} username={me?.username} role={me?.role} />
+      <AccountInfoView
+        id={me?.id}
+        username={me?.username}
+        role={me?.role}
+        loading={meStatus === "pending"}
+      />
 
       <AccountStatsView statistic={stat?.statistic} status={statStatus} />
 
@@ -74,6 +79,7 @@ export default function AccountPage() {
             onUsernameChange={setUsername}
             onSave={onSaveProfile}
             isPending={isUpdatingMe}
+            loading={meStatus === "pending"}
           />
 
           <PasswordFormView
@@ -83,6 +89,7 @@ export default function AccountPage() {
             onNewPasswordChange={setNewPassword}
             onSubmit={onChangePassword}
             isPending={isUpdatingPassword}
+            loading={meStatus === "pending"}
           />
         </section>
       )}

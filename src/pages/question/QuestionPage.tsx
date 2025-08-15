@@ -8,6 +8,7 @@ import { useAuth } from "../../app/providers/useAuth";
 import QuestionDetailsView from "./ui/QuestionDetailsView";
 import AnswerItemView from "./ui/AnswerItemView";
 import { BackLink } from "../../shared/ui/BackLink";
+import { Skeleton } from "../../shared/ui/Skeleton";
 
 const schema = z.object({
   content: z.string().min(1, "Ответ не может быть пустым"),
@@ -32,7 +33,17 @@ export default function QuestionPage() {
     reset({ content: "" });
   };
 
-  if (status === "pending") return <p>Загрузка...</p>;
+  if (status === "pending")
+    return (
+      <div className="space-y-4">
+        <BackLink />
+        <div className="space-y-3">
+          <Skeleton width={240} height={28} />
+          <Skeleton height={80} className="rounded" />
+          <Skeleton height={180} className="rounded" />
+        </div>
+      </div>
+    );
   if (!question) return <p>Вопрос не найден</p>;
 
   return (
