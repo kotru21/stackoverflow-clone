@@ -1,10 +1,10 @@
 import { memo } from "react";
-import type { Question } from "../../../entities/question/types";
-import type { Snippet } from "../../../entities/snippet/types";
-import { useAuth } from "../../../app/providers/useAuth";
-import { useMarkSnippet } from "../../../entities/snippet/api";
-import { QuestionCardView } from "./QuestionCardView";
-import { SnippetCardView } from "./SnippetCardView";
+import type { Question } from "../../entities/question/types";
+import type { Snippet } from "../../entities/snippet/types";
+import { useAuth } from "../../app/providers/useAuth";
+import { useMarkSnippet } from "../../entities/snippet/api";
+import { QuestionCardView } from "./ui/QuestionCardView";
+import { SnippetCardView } from "./ui/SnippetCardView";
 
 type BaseProps = {
   onMoreClick?: () => void;

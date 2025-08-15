@@ -7,6 +7,7 @@ import type { Question, Answer } from "../../entities/question/types";
 import { useAuth } from "../../app/providers/useAuth";
 import QuestionDetailsView from "./ui/QuestionDetailsView";
 import AnswerItemView from "./ui/AnswerItemView";
+import AnswerFormView from "./ui/AnswerFormView";
 import { BackLink } from "../../shared/ui/BackLink";
 import { Skeleton } from "../../shared/ui/Skeleton";
 
@@ -69,22 +70,12 @@ export default function QuestionPage() {
         attachedCode={(question as Question).attachedCode}
       />
       {user ? (
-        <form className="space-y-2" onSubmit={handleSubmit(onSubmit)}>
-          <textarea
-            className="w-full border rounded p-2 bg-white text-black dark:bg-neutral-800 dark:text-white"
-            rows={4}
-            placeholder="Ваш ответ..."
-            {...register("content")}
-          />
-          {errors.content && (
-            <p className="text-xs text-red-600">{errors.content.message}</p>
-          )}
-          <button
-            disabled={isSubmitting || isPending}
-            className="px-3 py-2 border rounded disabled:opacity-50 bg-white dark:bg-neutral-800">
-            Отправить ответ
-          </button>
-        </form>
+        <AnswerFormView
+          onSubmit={handleSubmit(onSubmit)}
+          textareaProps={register("content")}
+          error={errors.content?.message}
+          disabled={isSubmitting || isPending}
+        />
       ) : (
         <p className="text-sm text-gray-500 dark:text-gray-400">
           Войдите, чтобы оставить ответ.

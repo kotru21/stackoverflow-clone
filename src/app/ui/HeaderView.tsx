@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
 import Avatar from "../../shared/ui/Avatar";
 
 export type HeaderViewProps = {
@@ -7,6 +6,7 @@ export type HeaderViewProps = {
   theme: "light" | "dark";
   onToggleTheme: () => void;
   onLogout: () => void;
+  atTop: boolean;
 };
 
 export default function HeaderView({
@@ -14,18 +14,8 @@ export default function HeaderView({
   theme,
   onToggleTheme,
   onLogout,
+  atTop,
 }: HeaderViewProps) {
-  const [atTop, setAtTop] = useState(true);
-
-  useEffect(() => {
-    const onScroll = () => {
-      setAtTop(window.scrollY <= 8);
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
   return (
     <header
       className={

@@ -7,7 +7,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { BackLink } from "../../shared/ui/BackLink";
 import SnippetDetailsView from "./ui/SnippetDetailsView";
 import { Skeleton } from "../../shared/ui/Skeleton";
-import Avatar from "../../shared/ui/Avatar";
+import CommentFormView from "./ui/CommentFormView";
+import CommentsListView from "./ui/CommentsListView";
 
 export default function SnippetPage() {
   const { id } = useParams();
@@ -103,27 +104,14 @@ export default function SnippetPage() {
       />
 
       {user ? (
-        <div className="space-y-2 ">
-          <h2 className="text-lg font-semibold">Оставить комментарий</h2>
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={4}
-            className="w-full rounded border p-2 bg-white text-black dark:bg-neutral-800 dark:text-white"
-            placeholder="Ваш комментарий..."
-          />
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={submit}
-              disabled={!content.trim() || pending}
-              className="px-3 py-1.5 border rounded disabled:opacity-50">
-              Отправить
-            </button>
-            {error && <span className="text-red-500 text-sm">{error}</span>}
-            {ok && <span className="text-green-600 text-sm">{ok}</span>}
-          </div>
-        </div>
+        <CommentFormView
+          content={content}
+          onChange={setContent}
+          onSubmit={submit}
+          pending={pending}
+          error={error}
+          ok={ok}
+        />
       ) : (
         <p className="text-sm text-gray-500 dark:text-gray-400">
           Войдите, чтобы оставлять комментарии.
@@ -131,22 +119,7 @@ export default function SnippetPage() {
       )}
 
       {Array.isArray(snippet.comments) && snippet.comments.length > 0 && (
-        <div className="space-y-2">
-          <h2 className="text-lg font-semibold">Комментарии</h2>
-          <ul className="space-y-2">
-            {snippet.comments.map((c) => (
-              <li
-                key={c.id}
-                className="border rounded p-2 bg-white dark:bg-neutral-800">
-                <div className="text-xs text-gray-500 mb-1 flex items-center gap-2">
-                  <Avatar username={c.user.username} size={16} /> @
-                  {c.user.username}
-                </div>
-                <div className="text-sm whitespace-pre-wrap">{c.content}</div>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <CommentsListView comments={snippet.comments} />
       )}
     </div>
   );
