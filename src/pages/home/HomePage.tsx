@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useQuestions } from "../../entities/question/api";
 import type { Question } from "../../entities/question/types";
@@ -9,7 +9,11 @@ import { ItemCard } from "./ui/ItemCard.tsx";
 import HomePageView from "./ui/HomePageView";
 
 export default function HomePage() {
-  const [mode, setMode] = useState<"questions" | "snippets">("questions");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialMode = (
+    searchParams.get("mode") === "snippets" ? "snippets" : "questions"
+  ) as "questions" | "snippets";
+  const [mode, setMode] = useState<"questions" | "snippets">(initialMode);
   // Queries
   const q = useQuestions({ enabled: mode === "questions" });
   const s = useSnippets({ enabled: mode === "snippets" });
@@ -32,6 +36,20 @@ export default function HomePage() {
 
   const virtualItems = rowVirtualizer.getVirtualItems();
   const navigate = useNavigate();
+  useEffect(() => {
+    // keep URL in sync with selected mode
+    const current = searchParams.get("mode");
+    if (current !== mode) {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.set("mode", mode);
+          return next;
+        },
+        { replace: true }
+      );
+    }
+  }, [mode, searchParams, setSearchParams]);
   useEffect(() => {
     if (!hasNextPage || isFetchingNextPage || items.length === 0) return;
     const last = virtualItems[virtualItems.length - 1];
@@ -64,14 +82,22 @@ export default function HomePage() {
           <ItemCard
             type="question"
             item={itemQ}
-            onMoreClick={() => navigate(`/questions/${itemQ.id}`)}
+            onMoreClick={() =>
+              navigate(`/questions/${itemQ.id}`, {
+                state: { fromMode: "questions" },
+              })
+            }
           />
         ) : null
       ) : itemS ? (
         <ItemCard
           type="snippet"
           item={itemS}
-          onCommentsClick={() => navigate(`/snippets/${itemS.id}`)}
+          onCommentsClick={() =>
+            navigate(`/snippets/${itemS.id}`, {
+              state: { fromMode: "snippets" },
+            })
+          }
         />
       ) : null,
     };
