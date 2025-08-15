@@ -19,6 +19,7 @@ export const CodeBlock = memo(function CodeBlock({
   className,
 }: CodeBlockProps) {
   const { theme } = useTheme();
+  const safeCode = code ?? "";
   const prismTheme = useMemo(
     () =>
       theme === "dark"
@@ -32,7 +33,7 @@ export const CodeBlock = memo(function CodeBlock({
       className={
         "rounded border bg-gray-50 dark:bg-neutral-900 " + (className ?? "")
       }>
-      <Highlight code={code} language={language} theme={prismTheme}>
+      <Highlight code={safeCode} language={language} theme={prismTheme}>
         {({
           className: cls,
           style,

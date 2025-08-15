@@ -1,16 +1,29 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useQuestions } from "../../entities/question/api";
 import type { Question } from "../../entities/question/types";
-import { QuestionCard } from "./ui/QuestionCard";
+import { useSnippets } from "../../entities/snippet/api";
+import type { Snippet } from "../../entities/snippet/types";
+import { ItemCard } from "./ui/ItemCard.tsx";
 import HomePageView from "./ui/HomePageView";
 
 export default function HomePage() {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } =
-    useQuestions({});
+  const [mode, setMode] = useState<"questions" | "snippets">("questions");
+  // Queries
+  const q = useQuestions({ enabled: mode === "questions" });
+  const s = useSnippets({ enabled: mode === "snippets" });
 
-  const items = (data?.pages.flatMap((p) => p.data) ?? []) as Question[];
+  const isQuestions = mode === "questions";
+  const fetchNextPage = isQuestions ? q.fetchNextPage : s.fetchNextPage;
+  const hasNextPage = isQuestions ? q.hasNextPage : s.hasNextPage;
+  const isFetchingNextPage = isQuestions
+    ? q.isFetchingNextPage
+    : s.isFetchingNextPage;
+  const status = isQuestions ? q.status : s.status;
+  const itemsQ = (q.data?.pages.flatMap((p) => p.data) ?? []) as Question[];
+  const itemsS = (s.data?.pages.flatMap((p) => p.data) ?? []) as Snippet[];
+  const items = (isQuestions ? itemsQ : itemsS) as (Question | Snippet)[];
   const rowVirtualizer = useWindowVirtualizer({
     count: items.length,
     estimateSize: () => 220,
@@ -34,21 +47,31 @@ export default function HomePage() {
   ]);
 
   const rows = virtualItems.map((v) => {
-    const s = items[v.index];
+    const itemQ = isQuestions
+      ? (itemsQ[v.index] as Question | undefined)
+      : undefined;
+    const itemS = !isQuestions
+      ? (itemsS[v.index] as Snippet | undefined)
+      : undefined;
+    const key = ((itemQ?.id ?? itemS?.id) as React.Key) ?? v.index;
     return {
-      key: (s?.id as React.Key) ?? v.index,
+      key,
       start: v.start,
       index: v.index,
       ref: rowVirtualizer.measureElement,
-      content: s ? (
-        <QuestionCard
-          id={s.id}
-          title={s.title}
-          description={s.description}
-          attachedCode={s.attachedCode}
-          user={s.user}
-          answersCount={Array.isArray(s.answers) ? s.answers.length : undefined}
-          onMoreClick={() => navigate(`/questions/${s.id}`)}
+      content: isQuestions ? (
+        itemQ ? (
+          <ItemCard
+            type="question"
+            item={itemQ}
+            onMoreClick={() => navigate(`/questions/${itemQ.id}`)}
+          />
+        ) : null
+      ) : itemS ? (
+        <ItemCard
+          type="snippet"
+          item={itemS}
+          onCommentsClick={() => navigate(`/snippets/${itemS.id}`)}
         />
       ) : null,
     };
@@ -56,6 +79,9 @@ export default function HomePage() {
 
   return (
     <HomePageView
+      title={isQuestions ? "Вопросы" : "Сниппеты"}
+      mode={mode}
+      onModeChange={setMode}
       status={status}
       hasItems={items.length > 0}
       containerHeight={rowVirtualizer.getTotalSize()}

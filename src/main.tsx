@@ -4,6 +4,7 @@ import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import HomePage from "./pages/home/HomePage";
 import QuestionPage from "./pages/question/QuestionPage";
+import SnippetPage from "./pages/snippet/SnippetPage";
 import LoginPage from "./pages/auth/LoginPage.tsx";
 import RegisterPage from "./pages/auth/RegisterPage.tsx";
 import { RequireGuest } from "./app/providers/route-guards";
@@ -19,6 +20,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: "questions/:id", element: <QuestionPage /> },
+      { path: "snippets/:id", element: <SnippetPage /> },
       {
         element: <RequireGuest />,
         children: [

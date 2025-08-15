@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,6 +7,7 @@ import type { Question, Answer } from "../../entities/question/types";
 import { useAuth } from "../../app/providers/useAuth";
 import QuestionDetailsView from "./ui/QuestionDetailsView";
 import AnswerItemView from "./ui/AnswerItemView";
+import { BackLink } from "../../shared/ui/BackLink";
 
 const schema = z.object({
   content: z.string().min(1, "Ответ не может быть пустым"),
@@ -36,11 +37,7 @@ export default function QuestionPage() {
 
   return (
     <div className="space-y-4">
-      <div className="text-sm">
-        <Link to="/" className="text-blue-600 dark:text-blue-400">
-          ← Назад
-        </Link>
-      </div>
+      <BackLink />
       <QuestionDetailsView
         title={(question as Question).title}
         description={(question as Question).description}

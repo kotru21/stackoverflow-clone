@@ -14,8 +14,9 @@ export function useQuestions(params: {
   limit?: number;
   search?: string;
   sortBy?: string[];
+  enabled?: boolean;
 }) {
-  const { limit = 15, search = "", sortBy = [] } = params;
+  const { limit = 15, search = "", sortBy = [], enabled = true } = params;
   return useInfiniteQuery({
     queryKey: ["questions", { limit, search, sortBy }],
     queryFn: async ({ pageParam = 1 }) => {
@@ -38,6 +39,7 @@ export function useQuestions(params: {
     retry: 1,
     refetchOnWindowFocus: false,
     initialPageParam: 1,
+    enabled,
   });
 }
 

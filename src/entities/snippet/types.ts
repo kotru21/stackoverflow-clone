@@ -8,6 +8,13 @@ export type Snippet = {
   likesCount?: number;
   dislikesCount?: number;
   commentsCount?: number;
+  comments?: Comment[];
 };
 
 export type SnippetMark = "like" | "dislike" | "none";
+
+export type Comment = {
+  id: number;
+  content: string;
+  user: User;
+};

@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { CodeBlock } from "../../../shared/ui/CodeBlock";
 
 export type QuestionDetailsViewProps = {
@@ -6,7 +7,7 @@ export type QuestionDetailsViewProps = {
   attachedCode?: string;
 };
 
-export default function QuestionDetailsView({
+function QuestionDetailsView({
   title,
   description,
   attachedCode,
@@ -21,3 +22,5 @@ export default function QuestionDetailsView({
     </div>
   );
 }
+
+export default memo(QuestionDetailsView);

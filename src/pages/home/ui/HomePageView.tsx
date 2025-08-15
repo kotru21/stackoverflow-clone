@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { ReactNode, RefCallback } from "react";
 
 export type HomeRow = {
@@ -15,22 +16,52 @@ export type HomePageViewProps = {
   containerHeight: number;
   rows: HomeRow[];
   isFetchingNextPage?: boolean;
+  mode?: "questions" | "snippets";
+  onModeChange?: (m: "questions" | "snippets") => void;
 };
 
-export default function HomePageView({
+function HomePageView({
   title = "Вопросы",
   status,
   hasItems,
   containerHeight,
   rows,
   isFetchingNextPage,
+  mode,
+  onModeChange,
 }: HomePageViewProps) {
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">{title}</h1>
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-2xl font-semibold">{title}</h1>
+        {mode && onModeChange && (
+          <div className="inline-flex rounded border overflow-hidden">
+            <button
+              type="button"
+              className={`px-3 py-1 text-sm ${
+                mode === "questions"
+                  ? "bg-gray-200 dark:bg-neutral-700"
+                  : "bg-transparent"
+              }`}
+              onClick={() => onModeChange("questions")}>
+              Вопросы
+            </button>
+            <button
+              type="button"
+              className={`px-3 py-1 text-sm ${
+                mode === "snippets"
+                  ? "bg-gray-200 dark:bg-neutral-700"
+                  : "bg-transparent"
+              }`}
+              onClick={() => onModeChange("snippets")}>
+              Сниппеты
+            </button>
+          </div>
+        )}
+      </div>
       {status === "pending" && <p>Загрузка...</p>}
       {!hasItems && status === "success" && (
-        <p className="text-gray-500">Нет вопросов.</p>
+        <p className="text-gray-500">Ничего не найдено.</p>
       )}
       <div className="relative" style={{ height: containerHeight }}>
         {rows.map((row) => (
@@ -48,3 +79,5 @@ export default function HomePageView({
     </div>
   );
 }
+
+export default memo(HomePageView);
