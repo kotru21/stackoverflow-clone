@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import Avatar from "../../shared/ui/Avatar";
 
 export type HeaderViewProps = {
   user: { username: string } | null;
@@ -44,7 +45,8 @@ export default function HeaderView({
           </button>
           {user ? (
             <>
-              <span className="text-gray-600 dark:text-gray-300">
+              <span className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                <Avatar username={user.username} size={24} />
                 {user.username}
               </span>
               <Link to="/account">Account</Link>

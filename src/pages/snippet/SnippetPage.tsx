@@ -7,6 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { BackLink } from "../../shared/ui/BackLink";
 import SnippetDetailsView from "./ui/SnippetDetailsView";
 import { Skeleton } from "../../shared/ui/Skeleton";
+import Avatar from "../../shared/ui/Avatar";
 
 export default function SnippetPage() {
   const { id } = useParams();
@@ -137,8 +138,9 @@ export default function SnippetPage() {
               <li
                 key={c.id}
                 className="border rounded p-2 bg-white dark:bg-neutral-800">
-                <div className="text-xs text-gray-500 mb-1">
-                  @{c.user.username}
+                <div className="text-xs text-gray-500 mb-1 flex items-center gap-2">
+                  <Avatar username={c.user.username} size={16} /> @
+                  {c.user.username}
                 </div>
                 <div className="text-sm whitespace-pre-wrap">{c.content}</div>
               </li>

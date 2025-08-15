@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { CodeBlock } from "../../../shared/ui/CodeBlock";
+import Avatar from "../../../shared/ui/Avatar";
 
 export type SnippetDetailsViewProps = {
   id: number;
@@ -31,8 +32,8 @@ export const SnippetDetailsView = memo(function SnippetDetailsView({
         )}
       </div>
       {authorName && (
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Автор: @{authorName}
+        <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+          Автор: <Avatar username={authorName} size={18} /> @{authorName}
         </p>
       )}
       <CodeBlock code={code} />

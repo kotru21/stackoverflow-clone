@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { ExpandableText } from "../../../shared/ui/ExpandableText";
+import Avatar from "../../../shared/ui/Avatar";
 import { CodeBlock } from "../../../shared/ui/CodeBlock";
 
 export type QuestionCardViewProps = {
@@ -25,7 +26,9 @@ export const QuestionCardView = memo(function QuestionCardView({
         <h2 className="text-base font-semibold text-black dark:text-white">
           {title}
         </h2>
-        <span className="shrink-0">@{userName}</span>
+        <span className="shrink-0 inline-flex items-center gap-2">
+          <Avatar username={userName} size={20} /> @{userName}
+        </span>
       </div>
       <ExpandableText
         text={description}

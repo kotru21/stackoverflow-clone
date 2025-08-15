@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { Clamp } from "../../../shared/ui/Clamp";
 import { CodeBlock } from "../../../shared/ui/CodeBlock";
+import Avatar from "../../../shared/ui/Avatar";
 
 export type SnippetCardViewProps = {
   language: string;
@@ -37,7 +38,9 @@ export const SnippetCardView = memo(function SnippetCardView({
             {language}
           </span>
         </div>
-        <span className="shrink-0">@{userName}</span>
+        <span className="shrink-0 inline-flex items-center gap-2">
+          <Avatar username={userName} size={20} /> @{userName}
+        </span>
       </div>
       <Clamp
         maxHeight={220}
