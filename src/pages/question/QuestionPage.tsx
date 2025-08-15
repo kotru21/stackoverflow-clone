@@ -38,9 +38,23 @@ export default function QuestionPage() {
       <div className="space-y-4">
         <BackLink />
         <div className="space-y-3">
+          {/* Заголовок и детали вопроса */}
           <Skeleton width={240} height={28} />
           <Skeleton height={80} className="rounded" />
           <Skeleton height={180} className="rounded" />
+        </div>
+        {/* Форма ответа (новый лейаут: сразу под деталями) */}
+        <div className="space-y-2">
+          <Skeleton width={220} height={20} />
+          <Skeleton height={96} className="rounded" />
+          <Skeleton width={180} height={36} className="rounded" />
+        </div>
+        {/* Секция ответов */}
+        <div className="space-y-2">
+          <Skeleton width={160} height={20} />
+          {[...Array(3)].map((_, i) => (
+            <Skeleton key={i} height={56} className="rounded" />
+          ))}
         </div>
       </div>
     );
@@ -54,19 +68,6 @@ export default function QuestionPage() {
         description={(question as Question).description}
         attachedCode={(question as Question).attachedCode}
       />
-      <div>
-        <h2 className="text-xl font-semibold mb-2">Ответы</h2>
-        <ul className="space-y-2">
-          {Array.isArray((question as Question).answers) &&
-            (question as Question).answers!.map((a: Answer) => (
-              <AnswerItemView
-                key={a.id}
-                content={a.content}
-                isCorrect={a.isCorrect}
-              />
-            ))}
-        </ul>
-      </div>
       {user ? (
         <form className="space-y-2" onSubmit={handleSubmit(onSubmit)}>
           <textarea
@@ -89,6 +90,19 @@ export default function QuestionPage() {
           Войдите, чтобы оставить ответ.
         </p>
       )}
+      <div>
+        <h2 className="text-xl font-semibold mb-2">Ответы</h2>
+        <ul className="space-y-2">
+          {Array.isArray((question as Question).answers) &&
+            (question as Question).answers!.map((a: Answer) => (
+              <AnswerItemView
+                key={a.id}
+                content={a.content}
+                isCorrect={a.isCorrect}
+              />
+            ))}
+        </ul>
+      </div>
     </div>
   );
 }

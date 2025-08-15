@@ -56,6 +56,15 @@ export default function SnippetPage() {
             <Skeleton width={110} height={14} />
           </div>
         </div>
+        {/* Форма комментария (новый лейаут: сразу под деталями) */}
+        <div className="space-y-2">
+          <Skeleton width={200} height={20} />
+          <Skeleton height={96} className="rounded" />
+          <div className="flex items-center gap-2">
+            <Skeleton width={140} height={36} className="rounded" />
+            <Skeleton width={160} height={16} />
+          </div>
+        </div>
         <div className="space-y-2">
           <Skeleton width={160} height={20} />
           {[...Array(2)].map((_, i) => (
@@ -92,26 +101,8 @@ export default function SnippetPage() {
         commentsCount={snippet.commentsCount}
       />
 
-      {Array.isArray(snippet.comments) && snippet.comments.length > 0 && (
-        <div className="space-y-2">
-          <h2 className="text-lg font-semibold">Комментарии</h2>
-          <ul className="space-y-2">
-            {snippet.comments.map((c) => (
-              <li
-                key={c.id}
-                className="border rounded p-2 bg-white dark:bg-neutral-800">
-                <div className="text-xs text-gray-500 mb-1">
-                  @{c.user.username}
-                </div>
-                <div className="text-sm whitespace-pre-wrap">{c.content}</div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
       {user ? (
-        <div className="space-y-2">
+        <div className="space-y-2 ">
           <h2 className="text-lg font-semibold">Оставить комментарий</h2>
           <textarea
             value={content}
@@ -136,6 +127,24 @@ export default function SnippetPage() {
         <p className="text-sm text-gray-500 dark:text-gray-400">
           Войдите, чтобы оставлять комментарии.
         </p>
+      )}
+
+      {Array.isArray(snippet.comments) && snippet.comments.length > 0 && (
+        <div className="space-y-2">
+          <h2 className="text-lg font-semibold">Комментарии</h2>
+          <ul className="space-y-2">
+            {snippet.comments.map((c) => (
+              <li
+                key={c.id}
+                className="border rounded p-2 bg-white dark:bg-neutral-800">
+                <div className="text-xs text-gray-500 mb-1">
+                  @{c.user.username}
+                </div>
+                <div className="text-sm whitespace-pre-wrap">{c.content}</div>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );
