@@ -3,8 +3,7 @@ import type { Question } from "../../entities/question/types";
 import type { Snippet } from "../../entities/snippet/types";
 import { useAuth } from "../../app/providers/useAuth";
 import { useMarkSnippet } from "../../entities/snippet/api";
-import { QuestionCardView } from "./ui/QuestionCardView";
-import { SnippetCardView } from "./ui/SnippetCardView";
+import { ItemCommonCardView } from "./ui/ItemCommonCardView";
 
 type BaseProps = {
   onMoreClick?: () => void;
@@ -31,11 +30,12 @@ function QuestionView({
   onMoreClick?: () => void;
 }) {
   return (
-    <QuestionCardView
+    <ItemCommonCardView
+      mode="question"
       title={item.title}
       userName={item.user.username}
       description={item.description}
-      attachedCode={item.attachedCode}
+      code={item.attachedCode}
       answersCount={
         Array.isArray(item.answers) ? item.answers.length : undefined
       }
@@ -55,7 +55,8 @@ function SnippetView({
   const { mutate: mark, isPending } = useMarkSnippet(item.id);
   const canInteract = !!authUser;
   return (
-    <SnippetCardView
+    <ItemCommonCardView
+      mode="snippet"
       language={item.language}
       userName={item.user.username}
       code={item.code}
@@ -63,6 +64,7 @@ function SnippetView({
       dislikesCount={item.dislikesCount}
       commentsCount={item.commentsCount}
       onCommentsClick={onCommentsClick}
+      onMoreClick={onCommentsClick}
       onLike={() => mark("like")}
       onDislike={() => mark("dislike")}
       canInteract={canInteract}

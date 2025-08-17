@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { memo } from "react";
 import Avatar from "../../shared/ui/Avatar";
 
 export type HeaderViewProps = {
@@ -9,7 +10,7 @@ export type HeaderViewProps = {
   atTop: boolean;
 };
 
-export default function HeaderView({
+function HeaderView({
   user,
   theme,
   onToggleTheme,
@@ -39,6 +40,9 @@ export default function HeaderView({
                 <Avatar username={user.username} size={24} />
                 {user.username}
               </span>
+              <Link to="/create" className="px-2 py-1 border rounded">
+                Создать
+              </Link>
               <Link to="/account">Account</Link>
               <button onClick={onLogout} className="px-2 py-1 border rounded">
                 Logout +{" "}
@@ -57,3 +61,5 @@ export default function HeaderView({
     </header>
   );
 }
+
+export default memo(HeaderView);

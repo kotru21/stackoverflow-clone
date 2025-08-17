@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import HeaderView from "./ui/HeaderView";
 import type { HeaderViewProps } from "./ui/HeaderView";
 
 type Props = Omit<HeaderViewProps, "atTop">;
 
-export default function Header(props: Props) {
+function Header(props: Props) {
   const [atTop, setAtTop] = useState(true);
 
   useEffect(() => {
@@ -16,3 +16,5 @@ export default function Header(props: Props) {
 
   return <HeaderView {...props} atTop={atTop} />;
 }
+
+export default memo(Header);

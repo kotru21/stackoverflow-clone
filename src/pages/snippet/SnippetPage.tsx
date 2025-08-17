@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useSnippet } from "../../entities/snippet/api";
 import { useAuth } from "../../app/providers/useAuth";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { http, toHttpError } from "../../shared/api/http";
 import { useQueryClient } from "@tanstack/react-query";
 import { BackLink } from "../../shared/ui/BackLink";
@@ -9,6 +9,7 @@ import SnippetDetailsView from "./ui/SnippetDetailsView";
 import { Skeleton } from "../../shared/ui/Skeleton";
 import CommentFormView from "./ui/CommentFormView";
 import CommentsListView from "./ui/CommentsListView";
+import { getSocket } from "../../shared/socket";
 
 export default function SnippetPage() {
   const { id } = useParams();
@@ -22,6 +23,30 @@ export default function SnippetPage() {
   const [ok, setOk] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const qc = useQueryClient();
+  // Подписываемся на сокет-события комментариев
+  useEffect(() => {
+    if (!snippetId) return;
+    const socket = getSocket();
+    const channel = `snippet:${snippetId}`;
+    const onCreated = (payload: { snippetId: number }) => {
+      if (payload?.snippetId === snippetId) {
+        qc.invalidateQueries({ queryKey: ["snippet", snippetId] });
+      }
+    };
+    const onDeleted = (payload: { snippetId: number }) => {
+      if (payload?.snippetId === snippetId) {
+        qc.invalidateQueries({ queryKey: ["snippet", snippetId] });
+      }
+    };
+    socket.emit("join", channel);
+    socket.on("comment:created", onCreated);
+    socket.on("comment:deleted", onDeleted);
+    return () => {
+      socket.emit("leave", channel);
+      socket.off("comment:created", onCreated);
+      socket.off("comment:deleted", onDeleted);
+    };
+  }, [snippetId, qc]);
 
   const submit = async () => {
     setError(null);
@@ -31,7 +56,7 @@ export default function SnippetPage() {
       await http.post("/comments", { content, snippetId });
       setContent("");
       setOk("Комментарий отправлен");
-      // refresh snippet to show new comment
+      // При socket.io обновление прилетит и так; оставим инвалидацию на случай деградации
       qc.invalidateQueries({ queryKey: ["snippet", snippetId] });
     } catch (e) {
       const err = toHttpError(e);

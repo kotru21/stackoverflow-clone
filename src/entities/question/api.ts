@@ -5,7 +5,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { http } from "../../shared/api/http";
-import type { Question } from "./types";
+import type { Question, CreateQuestionDto } from "./types";
 import type { Paginated } from "../../shared/types/pagination";
 import { normalizePaginated, unwrapData } from "../../shared/api/normalize";
 
@@ -52,7 +52,7 @@ export function useQuestion(id?: string | number) {
     },
     enabled: !!id,
     retry: 1,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -69,6 +69,48 @@ export function useCreateAnswer(questionId: string | number) {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["question", questionId] });
+    },
+  });
+}
+
+export function useSetAnswerState(questionId: string | number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (params: {
+      answerId: string | number;
+      state: "correct" | "incorrect";
+    }) => {
+      const { answerId, state } = params;
+      // Убедимся, что путь содержит числовой id (бэкенд ожидает number)
+      const idNum = Number(answerId);
+      const res = await http.put(`/answers/${idNum}/state/${state}`);
+      return res.data as unknown;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["question", questionId] });
+      qc.invalidateQueries({ queryKey: ["questions"] });
+    },
+    onError: () => {
+      // Перестраховка: мягко обновим вопрос, чтобы снять возможные рассинхроны
+      qc.invalidateQueries({ queryKey: ["question", questionId] });
+      // Простое уведомление пользователю (минимально инвазивно)
+      alert("Не удалось обновить статус ответа. Попробуйте ещё раз.");
+    },
+  });
+}
+
+export function useCreateQuestion() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (dto: CreateQuestionDto) => {
+      const res = await http.post<unknown>("/questions", dto);
+      return unwrapData<Question>(res.data as unknown);
+    },
+    onSuccess: (created) => {
+      qc.invalidateQueries({ queryKey: ["questions"] });
+      if (created?.id) {
+        // no-op here; navigation will be performed by page-level logic
+      }
     },
   });
 }

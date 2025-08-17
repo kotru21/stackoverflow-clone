@@ -2,7 +2,11 @@ import { useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuestion, useCreateAnswer } from "../../entities/question/api";
+import {
+  useQuestion,
+  useCreateAnswer,
+  useSetAnswerState,
+} from "../../entities/question/api";
 import type { Question, Answer } from "../../entities/question/types";
 import { useAuth } from "../../app/providers/useAuth";
 import QuestionDetailsView from "./ui/QuestionDetailsView";
@@ -22,6 +26,8 @@ export default function QuestionPage() {
   const { user } = useAuth();
   const { data: question, status } = useQuestion(id);
   const { mutateAsync: createAnswer, isPending } = useCreateAnswer(id!);
+  const { mutateAsync: setAnswerState, isPending: markPending } =
+    useSetAnswerState(id!);
   const {
     register,
     handleSubmit,
@@ -90,6 +96,14 @@ export default function QuestionPage() {
                 key={a.id}
                 content={a.content}
                 isCorrect={a.isCorrect}
+                canMark={!!user}
+                pending={markPending}
+                onMarkCorrect={() =>
+                  setAnswerState({ answerId: a.id, state: "correct" })
+                }
+                onMarkIncorrect={() =>
+                  setAnswerState({ answerId: a.id, state: "incorrect" })
+                }
               />
             ))}
         </ul>

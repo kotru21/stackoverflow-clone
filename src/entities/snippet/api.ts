@@ -108,7 +108,7 @@ export function useSnippet(id?: number) {
     },
     enabled: !!id,
     retry: 1,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -122,6 +122,20 @@ export function useMarkSnippet(id: number) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["snippets"] });
       qc.invalidateQueries({ queryKey: ["snippet", id] });
+    },
+  });
+}
+
+export function useCreateSnippet() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (dto: { code: string; language: string }) => {
+      const res = await http.post<unknown>("/snippets", dto);
+      const created = unwrapData<Snippet & { id: number }>(res.data as unknown);
+      return created;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["snippets"] });
     },
   });
 }

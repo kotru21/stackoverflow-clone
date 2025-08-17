@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { memo } from "react";
 import type { FormEvent, InputHTMLAttributes } from "react";
 
 export type LoginFormViewProps = {
@@ -13,7 +14,7 @@ export type LoginFormViewProps = {
   isSubmitting?: boolean;
 };
 
-export default function LoginFormView({
+function LoginFormView({
   onSubmit,
   usernameInputProps,
   passwordInputProps,
@@ -63,3 +64,5 @@ export default function LoginFormView({
     </div>
   );
 }
+
+export default memo(LoginFormView);

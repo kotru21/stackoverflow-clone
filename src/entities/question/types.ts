@@ -19,3 +19,9 @@ export type Question = {
   user: User;
   isResolved?: boolean;
 };
+
+export type CreateQuestionDto = {
+  title: string;
+  description: string;
+  attachedCode?: string;
+};

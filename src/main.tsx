@@ -8,7 +8,8 @@ import SnippetPage from "./pages/snippet/SnippetPage";
 import AccountPage from "./pages/account/AccountPage";
 import LoginPage from "./pages/auth/LoginPage.tsx";
 import RegisterPage from "./pages/auth/RegisterPage.tsx";
-import { RequireGuest } from "./app/providers/route-guards";
+import { RequireAuth, RequireGuest } from "./app/providers/route-guards";
+import CreatePage from "./pages/create/CreatePage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App.tsx";
 import { AuthProvider } from "./app/providers/auth";
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
       { path: "questions/:id", element: <QuestionPage /> },
       { path: "snippets/:id", element: <SnippetPage /> },
       { path: "account", element: <AccountPage /> },
+      {
+        element: <RequireAuth />,
+        children: [{ path: "create", element: <CreatePage /> }],
+      },
       {
         element: <RequireGuest />,
         children: [

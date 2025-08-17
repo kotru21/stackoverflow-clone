@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { memo } from "react";
 import type { FormEvent, InputHTMLAttributes } from "react";
 
 export type RegisterFormViewProps = {
@@ -15,7 +16,7 @@ export type RegisterFormViewProps = {
   isSubmitting?: boolean;
 };
 
-export function RegisterFormView({
+function RegisterFormView({
   onSubmit,
   usernameInputProps,
   passwordInputProps,
@@ -78,4 +79,4 @@ export function RegisterFormView({
   );
 }
 
-export default RegisterFormView;
+export default memo(RegisterFormView);

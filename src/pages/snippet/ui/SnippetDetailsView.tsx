@@ -36,7 +36,7 @@ export const SnippetDetailsView = memo(function SnippetDetailsView({
           Автор: <Avatar username={authorName} size={18} /> @{authorName}
         </p>
       )}
-      <CodeBlock code={code} />
+      <CodeBlock code={code} language={language} />
       <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
         {typeof likesCount !== "undefined" && <span>Likes: {likesCount}</span>}
         {typeof dislikesCount !== "undefined" && (
