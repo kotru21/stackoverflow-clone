@@ -20,7 +20,7 @@ function HeaderView({
   return (
     <header
       className={
-        "sticky top-0 z-50 px-4 border-b bg-white text-black dark:bg-neutral-900 dark:text-white transition-all duration-300 " +
+  "sticky top-0 z-50 px-4 border-b bg-white text-black dark:bg-neutral-900 dark:text-white transition-all duration-200 ease-in-out " +
         (atTop ? "py-5" : "py-2")
       }>
       <nav className="mx-auto max-w-6xl flex items-center gap-4">
@@ -36,14 +36,16 @@ function HeaderView({
           </button>
           {user ? (
             <>
-              <span className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+              <Link
+                to="/account"
+                className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white"
+                aria-label="Открыть профиль">
                 <Avatar username={user.username} size={24} />
                 {user.username}
-              </span>
+              </Link>
               <Link to="/create" className="px-2 py-1 border rounded">
                 Создать
               </Link>
-              <Link to="/account">Account</Link>
               <button onClick={onLogout} className="px-2 py-1 border rounded">
                 Logout +{" "}
               </button>
