@@ -9,11 +9,82 @@ const API_BASE_URL =
 export const http = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
+  timeout: 10000,
+});
+// Стартовый лог окружения HTTP при включённом дебаге
+if (getDebugEnabled()) {
+  try {
+    console.log("[HTTP] init", {
+      baseURL: API_BASE_URL,
+      location: typeof window !== "undefined" ? window.location.href : "n/a",
+      withCredentials: true,
+      timeout: http.defaults.timeout,
+    });
+  } catch {
+    /* noop */
+  }
+}
+
+function getDebugEnabled(): boolean {
+  try {
+    const envDev = Boolean(
+      (import.meta as unknown as { env?: Record<string, unknown> }).env?.DEV
+    );
+    const qs =
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search)
+        : undefined;
+    const fromQuery = qs?.get("debugQuestionPage") === "1";
+    const fromLocal =
+      typeof window !== "undefined" &&
+      !!window.localStorage &&
+      window.localStorage.getItem("debugQuestionPage") === "1";
+    return envDev || !!fromQuery || !!fromLocal;
+  } catch {
+    return false;
+  }
+}
+
+http.interceptors.request.use((config) => {
+  if (getDebugEnabled()) {
+    try {
+      console.log("[HTTP] →", config.method?.toUpperCase(), config.url, {
+        baseURL: config.baseURL,
+        withCredentials: config.withCredentials,
+      });
+    } catch {
+      /* noop */
+    }
+  }
+  return config;
 });
 
 http.interceptors.response.use(
-  (r) => r,
+  (r) => {
+    if (getDebugEnabled()) {
+      try {
+        console.log("[HTTP] ←", r.config.method?.toUpperCase(), r.config.url, {
+          status: r.status,
+        });
+      } catch {
+        /* noop */
+      }
+    }
+    return r;
+  },
   (error) => {
+    if (getDebugEnabled()) {
+      try {
+        const cfg = (error?.config ?? {}) as { method?: string; url?: string };
+        const status = error?.response?.status;
+        console.log("[HTTP] ×", cfg.method?.toUpperCase(), cfg.url, {
+          status,
+          message: error?.message,
+        });
+      } catch {
+        /* noop */
+      }
+    }
     return Promise.reject(error);
   }
 );
