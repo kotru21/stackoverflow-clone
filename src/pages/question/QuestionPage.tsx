@@ -113,7 +113,6 @@ export default function QuestionPage() {
     ((ownerId != null && String(user.id) === String(ownerId)) ||
       (ownerName != null && user.username === ownerName));
 
-
   return (
     <div className="space-y-4">
       <BackLink />

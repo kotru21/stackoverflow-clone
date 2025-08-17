@@ -6,7 +6,6 @@ import { AuthContext, type User } from "./auth-context";
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  
 
   const refresh = useCallback(async () => {
     try {
