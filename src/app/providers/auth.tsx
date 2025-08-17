@@ -6,25 +6,7 @@ import { AuthContext, type User } from "./auth-context";
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const getDebugEnabled = () => {
-    try {
-      const envDev = Boolean(
-        (import.meta as unknown as { env?: Record<string, unknown> }).env?.DEV
-      );
-      const qs =
-        typeof window !== "undefined"
-          ? new URLSearchParams(window.location.search)
-          : undefined;
-      const fromQuery = qs?.get("debugQuestionPage") === "1";
-      const fromLocal =
-        typeof window !== "undefined" &&
-        !!window.localStorage &&
-        window.localStorage.getItem("debugQuestionPage") === "1";
-      return envDev || !!fromQuery || !!fromLocal;
-    } catch {
-      return false;
-    }
-  };
+  
 
   const refresh = useCallback(async () => {
     try {
@@ -37,24 +19,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           ((raw as Record<string, unknown>)?.["role"] as "user" | "admin") ||
           "user",
       };
-      if (getDebugEnabled()) {
-        console.log("[AuthProvider] /auth OK:", res.status, {
-          data: normalized,
-        });
-      }
       setUser(normalized);
     } catch {
-      if (getDebugEnabled()) {
-        try {
-          const err = await http
-            .get("/auth")
-            .then(() => undefined)
-            .catch((e) => toHttpError(e));
-          console.log("[AuthProvider] /auth FAIL:", err);
-        } catch {
-          console.log("[AuthProvider] /auth FAIL: unknown error");
-        }
-      }
       setUser(null);
     } finally {
       setLoading(false);
@@ -65,7 +31,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (didInit.current) return;
     didInit.current = true;
-    if (getDebugEnabled()) console.log("[AuthProvider] mount");
     void refresh();
   }, [refresh]);
 
@@ -73,9 +38,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await http.post("/auth/login", { username, password });
       await refresh();
-      if (getDebugEnabled()) {
-        console.log("[AuthProvider] login complete; user=", user);
-      }
     } catch (e) {
       const err = toHttpError(e);
       const error = new Error(err.message || "Login failed");
@@ -87,7 +49,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     await http.post("/auth/logout");
     setUser(null);
-    if (getDebugEnabled()) console.log("[AuthProvider] logout done");
   };
 
   const register = async (username: string, password: string) => {

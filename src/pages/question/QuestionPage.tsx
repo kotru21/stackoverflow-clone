@@ -1,5 +1,4 @@
 import { useParams } from "react-router-dom";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,30 +23,12 @@ type FormData = z.infer<typeof schema>;
 
 export default function QuestionPage() {
   const { id } = useParams<{ id: string }>();
-  const { user, refresh } = useAuth();
+  const { user } = useAuth();
   const { data: question, status } = useQuestion(id);
   const { mutateAsync: createAnswer, isPending } = useCreateAnswer(id!);
   const { mutateAsync: setAnswerState, isPending: markPending } =
     useSetAnswerState(id!);
-  const debugEnabled = (() => {
-    try {
-      const envDev = Boolean(
-        (import.meta as unknown as { env?: Record<string, unknown> }).env?.DEV
-      );
-      const qs =
-        typeof window !== "undefined"
-          ? new URLSearchParams(window.location.search)
-          : undefined;
-      const fromQuery = qs?.get("debugQuestionPage") === "1";
-      const fromLocal =
-        typeof window !== "undefined" &&
-        !!window.localStorage &&
-        window.localStorage.getItem("debugQuestionPage") === "1";
-      return envDev || !!fromQuery || !!fromLocal;
-    } catch {
-      return false;
-    }
-  })();
+  // debug-флаг и временные логи удалены
   const {
     register,
     handleSubmit,
@@ -60,51 +41,7 @@ export default function QuestionPage() {
     reset({ content: "" });
   };
 
-  // В режиме отладки: если пользователь ещё не загружен, форсируем refresh(), чтобы увидеть логи AuthProvider
-  useEffect(() => {
-    if (debugEnabled && !user) {
-      try {
-        void refresh();
-        console.log("[QuestionPage] forced refresh() to trigger /auth logs");
-      } catch {
-        // no-op for debug
-      }
-    }
-  }, [debugEnabled, user, refresh]);
-
-  // Dev/log-flag логирование для диагностики
-  if (debugEnabled) {
-    // Статус и базовые данные
-    console.log("[QuestionPage] DEBUG ENABLED");
-    console.log("[QuestionPage] status:", status, "questionId:", id);
-    if (user) {
-      console.log("[QuestionPage] auth user:", {
-        id: (user as unknown as Record<string, unknown>)["id"],
-        username: (user as unknown as Record<string, unknown>)["username"],
-        role: (user as unknown as Record<string, unknown>)["role"],
-      });
-    } else {
-      console.log("[QuestionPage] auth user: null");
-    }
-    if (question) {
-      const qAny = question as unknown as Record<string, unknown>;
-      const qUser =
-        (qAny?.["user"] as Record<string, unknown> | undefined) ?? undefined;
-      console.log("[QuestionPage] question owner raw fields:", {
-        questionId: qAny?.["id"],
-        user: qUser
-          ? { id: qUser["id"], username: qUser["username"] }
-          : undefined,
-        userId: qAny?.["userId"],
-        authorId: qAny?.["authorId"],
-        ownerId: qAny?.["ownerId"],
-        createdById: qAny?.["createdById"],
-        answersLen: Array.isArray(qAny?.["answers"] as unknown[])
-          ? (qAny?.["answers"] as unknown[]).length
-          : undefined,
-      });
-    }
-  }
+  // удалены dev-логирование и принудительный refresh
 
   if (status === "pending")
     return (
@@ -132,7 +69,6 @@ export default function QuestionPage() {
       </div>
     );
   if (!question) return <p>Вопрос не найден</p>;
-
   // Только автор вопроса может помечать ответы правильными/неправильными
   // Поддерживаем разные возможные формы данных от API: user.id | userId | user.userId
   const qAny = question as unknown as Record<string, unknown>;
@@ -177,15 +113,6 @@ export default function QuestionPage() {
     ((ownerId != null && String(user.id) === String(ownerId)) ||
       (ownerName != null && user.username === ownerName));
 
-  if (debugEnabled) {
-    console.log("[QuestionPage] derived owner:", {
-      ownerId,
-      ownerName,
-      isOwner,
-      currentUserId: user?.id,
-      currentUserName: user?.username,
-    });
-  }
 
   return (
     <div className="space-y-4">
@@ -219,27 +146,11 @@ export default function QuestionPage() {
                 canMark={isOwner}
                 pending={markPending}
                 onMarkCorrect={() => {
-                  if (!isOwner) {
-                    alert("Только автор вопроса может помечать ответы.");
-                    return;
-                  }
-                  if (debugEnabled) {
-                    console.log("[QuestionPage] action: mark correct", {
-                      answerId: a.id,
-                    });
-                  }
+                  if (!isOwner) return;
                   setAnswerState({ answerId: a.id, state: "correct" });
                 }}
                 onMarkIncorrect={() => {
-                  if (!isOwner) {
-                    alert("Только автор вопроса может помечать ответы.");
-                    return;
-                  }
-                  if (debugEnabled) {
-                    console.log("[QuestionPage] action: unmark (incorrect)", {
-                      answerId: a.id,
-                    });
-                  }
+                  if (!isOwner) return;
                   setAnswerState({ answerId: a.id, state: "incorrect" });
                 }}
               />
