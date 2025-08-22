@@ -2,6 +2,10 @@ import { useParams } from "react-router-dom";
 import { useSnippet } from "../../entities/snippet/api";
 import { useAuth } from "../../app/providers/useAuth";
 import { useEffect, useState } from "react";
+import type {
+  Snippet as SnippetType,
+  Comment as SnippetComment,
+} from "../../entities/snippet/types";
 import { http, toHttpError } from "../../shared/api/http";
 import { useQueryClient } from "@tanstack/react-query";
 import { BackLink } from "../../shared/ui/BackLink";
@@ -28,23 +32,49 @@ export default function SnippetPage() {
     if (!snippetId) return;
     const socket = getSocket();
     const channel = `snippet:${snippetId}`;
-    const onCreated = (payload: { snippetId: number }) => {
+
+    const onCreated = (payload: {
+      snippetId?: number;
+      id?: number;
+      content?: string;
+      user?: { username: string };
+    }) => {
       if (payload?.snippetId === snippetId) {
+        // Мгновенно оптимистично добавляем комментарий, если он ещё не в списке
+        qc.setQueryData(["snippet", snippetId], (prev) => {
+          const prevTyped = prev as SnippetType | undefined;
+          if (!prevTyped) return prevTyped;
+          const exists = prevTyped.comments?.some(
+            (c: SnippetComment) => c.id === payload.id
+          );
+          if (exists) return prevTyped;
+          if (!payload.id) return prevTyped;
+          const newComment: SnippetComment = {
+            id: Number(payload.id),
+            content: String(payload.content ?? ""),
+            user: {
+              id: 0,
+              username: payload.user?.username || "unknown",
+              role: "user",
+            },
+          };
+          return {
+            ...prevTyped,
+            comments: [...(prevTyped.comments || []), newComment],
+            commentsCount: (prevTyped.commentsCount || 0) + 1,
+          } as SnippetType;
+        });
+        // Триггерим актуализацию из API на всякий случай
         qc.invalidateQueries({ queryKey: ["snippet", snippetId] });
       }
     };
-    const onDeleted = (payload: { snippetId: number }) => {
-      if (payload?.snippetId === snippetId) {
-        qc.invalidateQueries({ queryKey: ["snippet", snippetId] });
-      }
-    };
+
     socket.emit("join", channel);
     socket.on("comment:created", onCreated);
-    socket.on("comment:deleted", onDeleted);
+
     return () => {
       socket.emit("leave", channel);
       socket.off("comment:created", onCreated);
-      socket.off("comment:deleted", onDeleted);
     };
   }, [snippetId, qc]);
 
@@ -53,7 +83,36 @@ export default function SnippetPage() {
     setOk(null);
     setPending(true);
     try {
-      await http.post("/comments", { content, snippetId });
+      const res = await http.post("/comments", { content, snippetId });
+      // Пытаемся вытащить id из API ответа (обёртка data может отличаться). Используем несколько fallback.
+      let createdId: number | undefined;
+      const rawUnknown: unknown = res.data;
+      if (rawUnknown && typeof rawUnknown === "object") {
+        const rawObj = rawUnknown as Record<string, unknown>;
+        if (typeof rawObj.id !== "undefined") createdId = Number(rawObj.id);
+        else if (
+          rawObj.data &&
+          typeof rawObj.data === "object" &&
+          rawObj.data !== null &&
+          typeof (rawObj.data as Record<string, unknown>).id !== "undefined"
+        ) {
+          createdId = Number(
+            (rawObj.data as Record<string, unknown>).id as unknown as number
+          );
+        }
+      }
+      // Локально инициируем создание через вебсокет (сервер всё равно сохранит и ретранслирует)
+      try {
+        const socket = getSocket();
+        socket.emit("comment:create", {
+          content,
+          snippetId,
+          id: createdId,
+          user: { username: user?.username },
+        });
+      } catch {
+        // ignore socket emit errors
+      }
       setContent("");
       setOk("Комментарий отправлен");
       // При socket.io обновление прилетит и так; оставим инвалидацию на случай деградации

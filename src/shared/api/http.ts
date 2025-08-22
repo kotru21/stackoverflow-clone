@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosHeaders } from "axios";
 
 // Use relative '/api' by default to leverage Vite proxy (avoids CORS with credentials).
 // Can be overridden via VITE_API_BASE_URL if your API supports proper CORS for credentials.
@@ -10,6 +10,24 @@ export const http = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
   timeout: 10000,
+});
+
+// In-memory bearer token (optional) – fallback when API doesn't use httpOnly cookies
+let authToken: string | null = null;
+export function setAuthToken(token: string | null) {
+  authToken = token;
+}
+
+http.interceptors.request.use((config) => {
+  if (authToken) {
+    if (!config.headers) config.headers = new AxiosHeaders();
+    // Приводим для установки значения без конфликтов типов
+    const h = config.headers as Record<string, unknown>;
+    if (h["Authorization"] == null) {
+      (h as Record<string, string>)["Authorization"] = `Bearer ${authToken}`;
+    }
+  }
+  return config;
 });
 
 http.interceptors.response.use(
