@@ -8,6 +8,9 @@ export type AnswerItemViewProps = {
   onMarkCorrect?: () => void;
   onMarkIncorrect?: () => void;
   pending?: boolean;
+  canEdit?: boolean;
+  onEdit?: () => void;
+  onDelete?: () => void;
 };
 
 export const AnswerItemView = memo(function AnswerItemView({
@@ -17,6 +20,9 @@ export const AnswerItemView = memo(function AnswerItemView({
   onMarkCorrect,
   onMarkIncorrect,
   pending,
+  canEdit,
+  onEdit,
+  onDelete,
 }: AnswerItemViewProps) {
   const itemBase = "border rounded p-2 text-sm transition-colors";
   const itemNormal =
@@ -34,7 +40,7 @@ export const AnswerItemView = memo(function AnswerItemView({
           className="flex-1"
           maxHeight={120}
         />
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap justify-end">
           {isCorrect && (
             <span className="text-green-700 dark:text-green-400 text-xs font-medium">
               Верный ответ
@@ -58,6 +64,22 @@ export const AnswerItemView = memo(function AnswerItemView({
                 Пометить как верный
               </button>
             ))}
+          {canEdit && (
+            <>
+              <button
+                type="button"
+                onClick={onEdit}
+                className="text-xs px-2 py-1 border rounded">
+                Изм.
+              </button>
+              <button
+                type="button"
+                onClick={onDelete}
+                className="text-xs px-2 py-1 border rounded border-red-600 text-red-600">
+                Удал.
+              </button>
+            </>
+          )}
         </div>
       </div>
     </li>

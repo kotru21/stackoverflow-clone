@@ -99,6 +99,36 @@ export function useSetAnswerState(questionId: string | number) {
   });
 }
 
+export function useUpdateAnswer(questionId: string | number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (params: {
+      answerId: string | number;
+      content: string;
+    }) => {
+      const { answerId, content } = params;
+      const res = await http.patch(`/answers/${Number(answerId)}`, { content });
+      return res.data as unknown;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["question", questionId] });
+    },
+  });
+}
+
+export function useDeleteAnswer(questionId: string | number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (answerId: string | number) => {
+      const res = await http.delete(`/answers/${Number(answerId)}`);
+      return res.data as unknown;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["question", questionId] });
+    },
+  });
+}
+
 export function useCreateQuestion() {
   const qc = useQueryClient();
   return useMutation({

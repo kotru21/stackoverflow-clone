@@ -1,5 +1,11 @@
 import { useParams } from "react-router-dom";
-import { useQuestion, useUpdateQuestion, useDeleteQuestion } from "@/entities/question/api";
+import {
+  useQuestion,
+  useUpdateQuestion,
+  useDeleteQuestion,
+  useUpdateAnswer,
+  useDeleteAnswer,
+} from "@/entities/question/api";
 import type { Question, Answer } from "@/entities/question/types";
 import { useAuth } from "@/app/providers/useAuth";
 import QuestionDetailsView from "./ui/QuestionDetailsView";
@@ -8,7 +14,11 @@ import AnswerFormView from "./ui/AnswerFormView";
 import { BackLink } from "@/shared/ui/BackLink";
 import { Skeleton } from "@/shared/ui/Skeleton";
 import { useQuestionAnswers } from "@/shared/socket";
-import { useAnswerForm, useQuestionOwnership, useAnswerActions } from "@/entities/question/hooks";
+import {
+  useAnswerForm,
+  useQuestionOwnership,
+  useAnswerActions,
+} from "@/entities/question/hooks";
 import { useState } from "react";
 import CodeEditor from "@/shared/ui/CodeEditor";
 import { useNavigate } from "react-router-dom";
@@ -22,10 +32,16 @@ export default function QuestionPage() {
 
   const answerForm = useAnswerForm(id!);
   const isOwner = useQuestionOwnership(question);
-  const { markCorrect, markIncorrect, isPending: markPending } = useAnswerActions(id!);
+  const {
+    markCorrect,
+    markIncorrect,
+    isPending: markPending,
+  } = useAnswerActions(id!);
 
   const updateMutation = useUpdateQuestion(id!);
   const deleteMutation = useDeleteQuestion(id!);
+  const updateAnswerMutation = useUpdateAnswer(id!);
+  const deleteAnswerMutation = useDeleteAnswer(id!);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
@@ -81,7 +97,11 @@ export default function QuestionPage() {
 
   const onSave = async () => {
     try {
-      await updateMutation.mutateAsync({ title: editTitle, description: editDescription, attachedCode: editCode });
+      await updateMutation.mutateAsync({
+        title: editTitle,
+        description: editDescription,
+        attachedCode: editCode,
+      });
       setIsEditing(false);
     } catch {
       alert("Не удалось сохранить изменения");
@@ -136,7 +156,7 @@ export default function QuestionPage() {
               className="w-full border rounded px-2 py-1 text-sm"
             />
           </div>
-            <div className="space-y-1">
+          <div className="space-y-1">
             <label className="block text-xs font-medium">Описание</label>
             <textarea
               value={editDescription}
@@ -156,7 +176,9 @@ export default function QuestionPage() {
               className="px-3 py-1 rounded bg-blue-600 text-white text-sm disabled:opacity-50">
               {updateMutation.isPending ? "Сохранение..." : "Сохранить"}
             </button>
-            <button onClick={onCancelEdit} className="px-3 py-1 rounded border text-sm">
+            <button
+              onClick={onCancelEdit}
+              className="px-3 py-1 rounded border text-sm">
               Отмена
             </button>
           </div>
@@ -176,21 +198,134 @@ export default function QuestionPage() {
       )}
       <div>
         <h2 className="text-xl font-semibold mb-2">Ответы</h2>
-        <ul className="space-y-2">
-          {Array.isArray((question as Question).answers) &&
-            (question as Question).answers!.map((a: Answer) => (
-              <AnswerItemView
-                key={a.id}
-                content={a.content}
-                isCorrect={a.isCorrect}
-                canMark={isOwner}
-                pending={markPending}
-                onMarkCorrect={() => handleMarkCorrect(a.id)}
-                onMarkIncorrect={() => handleMarkIncorrect(a.id)}
-              />
-            ))}
-        </ul>
+        <AnswerList
+          answers={(question as Question).answers || []}
+          currentUser={user?.username}
+          ownerCanMark={isOwner}
+          onMarkCorrect={handleMarkCorrect}
+          onMarkIncorrect={handleMarkIncorrect}
+          markPending={markPending}
+          onUpdate={(answerId, content) =>
+            updateAnswerMutation.mutate({ answerId, content })
+          }
+          onDelete={(answerId) => deleteAnswerMutation.mutate(answerId)}
+        />
       </div>
+    </div>
+  );
+}
+
+function AnswerList({
+  answers,
+  currentUser,
+  ownerCanMark,
+  onMarkCorrect,
+  onMarkIncorrect,
+  markPending,
+  onUpdate,
+  onDelete,
+}: {
+  answers: Answer[];
+  currentUser?: string;
+  ownerCanMark: boolean;
+  onMarkCorrect: (id: string | number) => void;
+  onMarkIncorrect: (id: string | number) => void;
+  markPending: boolean;
+  onUpdate: (id: string | number, content: string) => void;
+  onDelete: (id: string | number) => void;
+}) {
+  return (
+    <ul className="space-y-2">
+      {answers.map((a) => (
+        <EditableAnswerItem
+          key={a.id}
+          answer={a}
+          canMark={ownerCanMark}
+          currentUser={currentUser}
+          onMarkCorrect={() => onMarkCorrect(a.id)}
+          onMarkIncorrect={() => onMarkIncorrect(a.id)}
+          markPending={markPending}
+          onUpdate={onUpdate}
+          onDelete={onDelete}
+        />
+      ))}
+    </ul>
+  );
+}
+
+import { useState as useStateReact } from "react";
+
+function EditableAnswerItem({
+  answer,
+  canMark,
+  currentUser,
+  onMarkCorrect,
+  onMarkIncorrect,
+  markPending,
+  onUpdate,
+  onDelete,
+}: {
+  answer: Answer;
+  canMark: boolean;
+  currentUser?: string;
+  onMarkCorrect: () => void;
+  onMarkIncorrect: () => void;
+  markPending: boolean;
+  onUpdate: (id: string | number, content: string) => void;
+  onDelete: (id: string | number) => void;
+}) {
+  const [editing, setEditing] = useStateReact(false);
+  const [value, setValue] = useStateReact(answer.content);
+  // Допускаем что объект ответа может содержать user (не описан в исходном типе)
+  const answerUser = (answer as unknown as { user?: { username?: string } })
+    .user;
+  const isOwner = !!currentUser && answerUser?.username === currentUser;
+
+  const save = () => {
+    onUpdate(answer.id, value);
+    setEditing(false);
+  };
+  const del = () => {
+    if (confirm("Удалить ответ?")) onDelete(answer.id);
+  };
+  return (
+    <div>
+      <AnswerItemView
+        content={editing ? value : answer.content}
+        isCorrect={answer.isCorrect}
+        canMark={canMark}
+        pending={markPending}
+        onMarkCorrect={onMarkCorrect}
+        onMarkIncorrect={onMarkIncorrect}
+        canEdit={!!isOwner}
+        onEdit={() => setEditing(true)}
+        onDelete={del}
+      />
+      {editing && (
+        <div className="mt-2 space-y-2 border rounded p-2">
+          <textarea
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            rows={4}
+            className="w-full border rounded px-2 py-1 text-sm"
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={save}
+              className="text-xs px-2 py-1 rounded bg-blue-600 text-white">
+              Сохранить
+            </button>
+            <button
+              onClick={() => {
+                setValue(answer.content);
+                setEditing(false);
+              }}
+              className="text-xs px-2 py-1 rounded border">
+              Отмена
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -167,3 +167,30 @@ export function useDeleteSnippet(id: number) {
     },
   });
 }
+
+export function useUpdateComment(snippetId: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (params: { id: number; content: string }) => {
+      const { id, content } = params;
+      const res = await http.patch(`/comments/${id}`, { content });
+      return res.data as unknown;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["snippet", snippetId] });
+    },
+  });
+}
+
+export function useDeleteComment(snippetId: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const res = await http.delete(`/comments/${id}`);
+      return res.data as unknown;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["snippet", snippetId] });
+    },
+  });
+}

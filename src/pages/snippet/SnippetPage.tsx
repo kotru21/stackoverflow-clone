@@ -1,5 +1,11 @@
 import { useParams } from "react-router-dom";
-import { useSnippet, useUpdateSnippet, useDeleteSnippet } from "@/entities/snippet/api";
+import {
+  useSnippet,
+  useUpdateSnippet,
+  useDeleteSnippet,
+  useUpdateComment,
+  useDeleteComment,
+} from "@/entities/snippet/api";
 import { useAuth } from "@/app/providers/useAuth";
 import { BackLink } from "@/shared/ui/BackLink";
 import SnippetDetailsView from "./ui/SnippetDetailsView";
@@ -28,6 +34,8 @@ export default function SnippetPage() {
 
   const updateMutation = useUpdateSnippet(snippetId);
   const deleteMutation = useDeleteSnippet(snippetId);
+  const updateCommentMutation = useUpdateComment(snippetId);
+  const deleteCommentMutation = useDeleteComment(snippetId);
 
   useSnippetComments(Number.isFinite(snippetId) ? snippetId : undefined);
 
@@ -94,7 +102,10 @@ export default function SnippetPage() {
 
   const onSave = async () => {
     try {
-      await updateMutation.mutateAsync({ language: editLanguage, code: editCode });
+      await updateMutation.mutateAsync({
+        language: editLanguage,
+        code: editCode,
+      });
       setIsEditing(false);
     } catch {
       alert("Не удалось сохранить изменения");
@@ -144,7 +155,9 @@ export default function SnippetPage() {
       )}
       {isEditing && (
         <div className="space-y-3 border rounded p-3">
-          <h1 className="text-xl font-semibold">Редактирование сниппета #{snippet.id}</h1>
+          <h1 className="text-xl font-semibold">
+            Редактирование сниппета #{snippet.id}
+          </h1>
           <div className="space-y-2">
             <label className="block text-xs font-medium">Язык</label>
             <input
@@ -156,7 +169,11 @@ export default function SnippetPage() {
           </div>
           <div className="space-y-2">
             <label className="block text-xs font-medium">Код</label>
-            <CodeEditor value={editCode} onChange={setEditCode} language={editLanguage} />
+            <CodeEditor
+              value={editCode}
+              onChange={setEditCode}
+              language={editLanguage}
+            />
           </div>
           <div className="flex gap-2">
             <button
@@ -174,7 +191,7 @@ export default function SnippetPage() {
         </div>
       )}
 
-  {user ? (
+      {user ? (
         <CommentFormView
           content={commentForm.content}
           onChange={commentForm.setContent}
@@ -190,7 +207,16 @@ export default function SnippetPage() {
       )}
 
       {Array.isArray(snippet.comments) && snippet.comments.length > 0 && (
-        <CommentsListView comments={snippet.comments} />
+        <CommentsListView
+          comments={snippet.comments}
+          currentUser={user}
+          onUpdate={(cid, content) => {
+            updateCommentMutation.mutate({ id: cid, content });
+          }}
+          onDelete={(cid) => {
+            deleteCommentMutation.mutate(cid);
+          }}
+        />
       )}
     </div>
   );
