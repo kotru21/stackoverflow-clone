@@ -23,6 +23,12 @@ export class WSServer {
   }
 
   private onConnection(socket: Socket) {
+    if (process.env.NODE_ENV !== "production") {
+      const origin = socket.handshake.headers.origin;
+      console.log(
+        `[ws] connection established id=${socket.id} origin=${origin}`
+      );
+    }
     socket.on("join", (room: string) => {
       if (typeof room === "string") {
         socket.join(room);

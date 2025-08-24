@@ -94,12 +94,95 @@ export function useSnippetComments(snippetId: number | undefined) {
       }
     };
 
+    const onUpdated = (payload: {
+      snippetId?: number;
+      id?: number | string;
+      content?: string;
+    }) => {
+      if (payload?.snippetId === snippetId && payload.id) {
+        if (isDev) {
+          console.debug(
+            "[socket] snippet comment:updated (client handler)",
+            payload
+          );
+        }
+        qc.setQueryData(["snippet", snippetId], (prev: unknown) => {
+          if (!prev || typeof prev !== "object") return prev;
+          const prevSnippet = prev as {
+            comments?: Array<{
+              id: number;
+              content: string;
+              user?: { username?: string };
+            }>;
+            commentsCount?: number;
+            [k: string]: unknown;
+          };
+          const comments = Array.isArray(prevSnippet.comments)
+            ? [...prevSnippet.comments]
+            : [];
+          let changed = false;
+          const next = comments.map((c) => {
+            if (Number(c.id) === Number(payload.id)) {
+              changed = true;
+              return { ...c, content: String(payload.content ?? c.content) };
+            }
+            return c;
+          });
+          if (!changed) return prev;
+          return { ...prevSnippet, comments: next };
+        });
+      }
+    };
+
+    const onDeleted = (payload: {
+      snippetId?: number;
+      id?: number | string;
+    }) => {
+      if (payload?.snippetId === snippetId && payload.id) {
+        if (isDev) {
+          console.debug(
+            "[socket] snippet comment:deleted (client handler)",
+            payload
+          );
+        }
+        qc.setQueryData(["snippet", snippetId], (prev: unknown) => {
+          if (!prev || typeof prev !== "object") return prev;
+          const prevSnippet = prev as {
+            comments?: Array<{
+              id: number;
+              content: string;
+              user?: { username?: string };
+            }>;
+            commentsCount?: number;
+            [k: string]: unknown;
+          };
+          const comments = Array.isArray(prevSnippet.comments)
+            ? prevSnippet.comments.filter(
+                (c) => Number(c.id) !== Number(payload.id)
+              )
+            : [];
+          return {
+            ...prevSnippet,
+            comments,
+            commentsCount: Math.max(
+              0,
+              (prevSnippet.commentsCount as number) - 1
+            ),
+          };
+        });
+      }
+    };
+
     socket.emit("join", channel);
     socket.on("comment:created", onCreated);
+    socket.on("comment:updated", onUpdated);
+    socket.on("comment:deleted", onDeleted);
 
     return () => {
       socket.emit("leave", channel);
       socket.off("comment:created", onCreated);
+      socket.off("comment:updated", onUpdated);
+      socket.off("comment:deleted", onDeleted);
     };
   }, [snippetId, qc]);
 }
@@ -112,6 +195,12 @@ export function useQuestionAnswers(questionId: number | string | undefined) {
     if (!questionId) return;
     const socket = getSocket();
     const channel = `question:${questionId}`;
+    if (isDev) {
+      console.debug("[socket] useQuestionAnswers subscribe", {
+        channel,
+        questionId,
+      });
+    }
 
     const onAnswerCreated = (payload: {
       questionId?: number | string;
@@ -187,14 +276,85 @@ export function useQuestionAnswers(questionId: number | string | undefined) {
       }
     };
 
+    const onAnswerUpdated = (payload: {
+      questionId?: number | string;
+      answerId?: number | string;
+      content?: string;
+    }) => {
+      if (
+        payload?.questionId &&
+        String(payload.questionId) === String(questionId)
+      ) {
+        if (isDev) {
+          console.debug("[socket] answer:updated (client handler)", payload);
+        }
+        qc.setQueryData(["question", questionId], (prev: unknown) => {
+          if (!prev || typeof prev !== "object") return prev;
+          const prevQuestion = prev as {
+            answers?: Array<{
+              id: string | number;
+              content: string;
+              isCorrect?: boolean;
+              user?: { username?: string };
+            }>;
+            [k: string]: unknown;
+          };
+          const answers = Array.isArray(prevQuestion.answers)
+            ? prevQuestion.answers.map((a) =>
+                String(a.id) === String(payload.answerId)
+                  ? { ...a, content: String(payload.content ?? a.content) }
+                  : a
+              )
+            : [];
+          return { ...prevQuestion, answers };
+        });
+      }
+    };
+
+    const onAnswerDeleted = (payload: {
+      questionId?: number | string;
+      answerId?: number | string;
+    }) => {
+      if (
+        payload?.questionId &&
+        String(payload.questionId) === String(questionId)
+      ) {
+        if (isDev) {
+          console.debug("[socket] answer:deleted (client handler)", payload);
+        }
+        qc.setQueryData(["question", questionId], (prev: unknown) => {
+          if (!prev || typeof prev !== "object") return prev;
+          const prevQuestion = prev as {
+            answers?: Array<{
+              id: string | number;
+              content: string;
+              isCorrect?: boolean;
+              user?: { username?: string };
+            }>;
+            [k: string]: unknown;
+          };
+          const answers = Array.isArray(prevQuestion.answers)
+            ? prevQuestion.answers.filter(
+                (a) => String(a.id) !== String(payload.answerId)
+              )
+            : [];
+          return { ...prevQuestion, answers };
+        });
+      }
+    };
+
     socket.emit("join", channel);
     socket.on("answer:created", onAnswerCreated);
     socket.on("answer:state_changed", onAnswerStateChanged);
+    socket.on("answer:updated", onAnswerUpdated);
+    socket.on("answer:deleted", onAnswerDeleted);
 
     return () => {
       socket.emit("leave", channel);
       socket.off("answer:created", onAnswerCreated);
       socket.off("answer:state_changed", onAnswerStateChanged);
+      socket.off("answer:updated", onAnswerUpdated);
+      socket.off("answer:deleted", onAnswerDeleted);
     };
   }, [questionId, qc]);
 }
@@ -208,6 +368,9 @@ export function emitSnippetComment(data: {
 }) {
   try {
     const socket = getSocket();
+    if (isDev) {
+      console.debug("[socket] emit comment:create", data);
+    }
     socket.emit("comment:create", {
       content: data.content,
       snippetId: data.snippetId,
@@ -216,6 +379,37 @@ export function emitSnippetComment(data: {
     });
   } catch {
     // ignore socket emit errors
+  }
+}
+
+export function emitSnippetCommentUpdate(data: {
+  snippetId: number;
+  id: number | string;
+  content: string;
+}) {
+  try {
+    const socket = getSocket();
+    if (isDev) {
+      console.debug("[socket] emit comment:update", data);
+    }
+    socket.emit("comment:update", data);
+  } catch {
+    // ignore
+  }
+}
+
+export function emitSnippetCommentDelete(data: {
+  snippetId: number;
+  id: number | string;
+}) {
+  try {
+    const socket = getSocket();
+    if (isDev) {
+      console.debug("[socket] emit comment:delete", data);
+    }
+    socket.emit("comment:delete", data);
+  } catch {
+    // ignore
   }
 }
 
@@ -229,6 +423,9 @@ export function emitQuestionAnswer(data: {
 }) {
   try {
     const socket = getSocket();
+    if (isDev) {
+      console.debug("[socket] emit answer:create", data);
+    }
     socket.emit("answer:create", {
       content: data.content,
       questionId: data.questionId,
@@ -248,7 +445,11 @@ export function emitAnswerStateChange(data: {
   isCorrect: boolean;
 }) {
   try {
+    if (!data.questionId || data.questionId === "0") return;
     const socket = getSocket();
+    if (isDev) {
+      console.debug("[socket] emit answer:state_change", data);
+    }
     socket.emit("answer:state_change", {
       questionId: data.questionId,
       answerId: data.answerId,
@@ -256,5 +457,38 @@ export function emitAnswerStateChange(data: {
     });
   } catch {
     // ignore socket emit errors
+  }
+}
+
+export function emitAnswerUpdate(data: {
+  questionId: number | string;
+  answerId: number | string;
+  content: string;
+}) {
+  try {
+    if (!data.questionId || data.questionId === "0") return;
+    const socket = getSocket();
+    if (isDev) {
+      console.debug("[socket] emit answer:update", data);
+    }
+    socket.emit("answer:update", data);
+  } catch {
+    // ignore
+  }
+}
+
+export function emitAnswerDelete(data: {
+  questionId: number | string;
+  answerId: number | string;
+}) {
+  try {
+    if (!data.questionId || data.questionId === "0") return;
+    const socket = getSocket();
+    if (isDev) {
+      console.debug("[socket] emit answer:delete", data);
+    }
+    socket.emit("answer:delete", data);
+  } catch {
+    // ignore
   }
 }

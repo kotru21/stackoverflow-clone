@@ -8,7 +8,11 @@ import {
   useDeleteComment,
 } from "@/entities/snippet/api";
 import { useCommentForm, useSnippetOwnership } from "@/entities/snippet/hooks";
-import { useSnippetComments } from "@/shared/socket";
+import {
+  useSnippetComments,
+  emitSnippetCommentUpdate,
+  emitSnippetCommentDelete,
+} from "@/shared/socket";
 import type { SnippetState } from "../hooks/itemTypes";
 
 export function useSnippetDetails(rawId?: string): SnippetState {
@@ -101,8 +105,22 @@ export function useSnippetDetails(rawId?: string): SnippetState {
     },
     commentForm,
     updateComment: (id: number | string, content: string) =>
-      updateCommentMut.mutate({ id: Number(id), content }),
-    deleteComment: (id: number | string) => deleteCommentMut.mutate(Number(id)),
+      updateCommentMut.mutate(
+        { id: Number(id), content },
+        {
+          onSuccess: () =>
+            emitSnippetCommentUpdate({
+              snippetId: numericId || 0,
+              id,
+              content,
+            }),
+        }
+      ),
+    deleteComment: (id: number | string) =>
+      deleteCommentMut.mutate(Number(id), {
+        onSuccess: () =>
+          emitSnippetCommentDelete({ snippetId: numericId || 0, id }),
+      }),
   } as const;
 }
 

@@ -9,7 +9,11 @@ import {
   useDeleteAnswer,
 } from "@/entities/question/api";
 import { useAnswerForm, useQuestionOwnership } from "@/entities/question/hooks";
-import { useQuestionAnswers } from "@/shared/socket";
+import {
+  useQuestionAnswers,
+  emitAnswerUpdate,
+  emitAnswerDelete,
+} from "@/shared/socket";
 import type { QuestionState } from "../hooks/itemTypes";
 
 export function useQuestionDetails(id?: string): QuestionState {
@@ -108,9 +112,21 @@ export function useQuestionDetails(id?: string): QuestionState {
       setAnswerStateMut.mutate({ answerId, state: "incorrect" });
     },
     updateAnswer: (answerId: string | number, content: string) =>
-      updateAnswerMut.mutate({ answerId, content }),
+      updateAnswerMut.mutate(
+        { answerId, content },
+        {
+          onSuccess: () =>
+            emitAnswerUpdate({
+              questionId: id || "0",
+              answerId,
+              content,
+            }),
+        }
+      ),
     deleteAnswer: (answerId: string | number) =>
-      deleteAnswerMut.mutate(answerId),
+      deleteAnswerMut.mutate(answerId, {
+        onSuccess: () => emitAnswerDelete({ questionId: id || "0", answerId }),
+      }),
   } as const;
 }
 
