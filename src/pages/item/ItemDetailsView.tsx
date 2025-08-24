@@ -94,7 +94,10 @@ function QuestionSection({ state }: { state: QuestionState }) {
         answerForm && (
           <GenericTextForm
             formSubmit={answerForm.onSubmit}
-            textareaProps={answerForm.register("content")}
+            value={answerForm.watch("content") || ""}
+            onChange={(v) =>
+              answerForm.setValue("content", v, { shouldValidate: true })
+            }
             error={answerForm.formState.errors.content?.message}
             pending={answerForm.formState.isSubmitting || answerForm.isPending}
             placeholder="Ваш ответ..."

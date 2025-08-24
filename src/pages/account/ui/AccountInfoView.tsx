@@ -1,4 +1,5 @@
 import { memo } from "react";
+import Avatar from "@/shared/ui/Avatar";
 
 export type AccountInfoViewProps = {
   id?: number;
@@ -17,7 +18,10 @@ export const AccountInfoView = memo(function AccountInfoView({
 }: AccountInfoViewProps) {
   return (
     <section className="space-y-2">
-      <h1 className="text-2xl font-semibold">Аккаунт</h1>
+      <div className="flex items-center gap-3">
+        {username && <Avatar username={username} size={44} />}
+        <h1 className="text-2xl font-semibold">@{username}</h1>
+      </div>
       {loading ? (
         <div className="space-y-2">
           <Skeleton width={220} height={16} />
@@ -25,10 +29,7 @@ export const AccountInfoView = memo(function AccountInfoView({
           <Skeleton width={120} height={16} />
         </div>
       ) : typeof id === "number" && username && role ? (
-        <div className="text-sm text-gray-700 dark:text-gray-300">
-          <div>
-            Имя пользователя: <span className="font-mono">@{username}</span>
-          </div>
+        <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
           <div>
             Роль: <span className="font-mono">{role}</span>
           </div>
