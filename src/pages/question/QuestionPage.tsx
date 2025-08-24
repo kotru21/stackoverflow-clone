@@ -105,47 +105,13 @@ export default function QuestionPage() {
       </div>
     );
   if (!question) return <p>Вопрос не найден</p>;
-  const qAny = question as unknown as Record<string, unknown>;
-  const qUser =
-    (qAny?.["user"] as Record<string, unknown> | undefined) ?? undefined;
-  const ownerIdCandidates: Array<number | string | undefined> = [
-    qUser?.["id"] as number | string | undefined,
-    qAny?.["userId"] as number | string | undefined,
-    qUser?.["userId"] as number | string | undefined,
-    (qAny?.["author"] as Record<string, unknown> | undefined)?.["id"] as
-      | number
-      | string
-      | undefined,
-    (qAny?.["owner"] as Record<string, unknown> | undefined)?.["id"] as
-      | number
-      | string
-      | undefined,
-    (qAny?.["createdBy"] as Record<string, unknown> | undefined)?.["id"] as
-      | number
-      | string
-      | undefined,
-    qAny?.["createdById"] as number | string | undefined,
-    qAny?.["authorId"] as number | string | undefined,
-    qAny?.["ownerId"] as number | string | undefined,
-  ];
-  const ownerId = ownerIdCandidates.find((v) => v !== undefined);
-  const ownerNameCandidates: Array<string | undefined> = [
-    (qUser?.["username"] as string | undefined) ?? undefined,
-    (qAny?.["author"] as Record<string, unknown> | undefined)?.["username"] as
-      | string
-      | undefined,
-    (qAny?.["owner"] as Record<string, unknown> | undefined)?.["username"] as
-      | string
-      | undefined,
-    (qAny?.["createdBy"] as Record<string, unknown> | undefined)?.[
-      "username"
-    ] as string | undefined,
-  ];
-  const ownerName = ownerNameCandidates.find((v) => !!v);
+
+  const questionUser = (question as Question).user;
   const isOwner =
     !!user &&
-    ((ownerId != null && String(user.id) === String(ownerId)) ||
-      (ownerName != null && user.username === ownerName));
+    !!questionUser &&
+    (String(user.id) === String(questionUser.id) ||
+      user.username === questionUser.username);
 
   const handleMarkCorrect = async (answerId: string | number) => {
     if (!isOwner) return;
