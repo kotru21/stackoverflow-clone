@@ -10,6 +10,7 @@ import LoginPage from "@/pages/auth/LoginPage.tsx";
 import RegisterPage from "@/pages/auth/RegisterPage.tsx";
 import { RequireAuth, RequireGuest } from "@/app/providers/route-guards";
 import CreatePage from "@/pages/create/CreatePage";
+import MyItemsPage from "@/pages/my/MyItemsPage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App.tsx";
 import { AuthProvider } from "@/app/providers/auth";
@@ -26,7 +27,10 @@ const router = createBrowserRouter([
       { path: "account", element: <AccountPage /> },
       {
         element: <RequireAuth />,
-        children: [{ path: "create", element: <CreatePage /> }],
+        children: [
+          { path: "create", element: <CreatePage /> },
+          { path: "my", element: <MyItemsPage /> },
+        ],
       },
       {
         element: <RequireGuest />,

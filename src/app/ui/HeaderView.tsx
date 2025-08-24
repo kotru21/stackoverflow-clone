@@ -20,7 +20,7 @@ function HeaderView({
   return (
     <header
       className={
-  "sticky top-0 z-50 px-4 border-b bg-white text-black dark:bg-neutral-900 dark:text-white transition-all duration-200 ease-in-out " +
+        "sticky top-0 z-50 px-4 border-b bg-white text-black dark:bg-neutral-900 dark:text-white transition-all duration-200 ease-in-out " +
         (atTop ? "py-5" : "py-2")
       }>
       <nav className="mx-auto max-w-6xl flex items-center gap-4">
@@ -45,6 +45,9 @@ function HeaderView({
               </Link>
               <Link to="/create" className="px-2 py-1 border rounded">
                 Создать
+              </Link>
+              <Link to="/my" className="px-2 py-1 border rounded">
+                Мои
               </Link>
               <button onClick={onLogout} className="px-2 py-1 border rounded">
                 Logout +{" "}
