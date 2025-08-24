@@ -1,15 +1,13 @@
 import { useParams } from "react-router-dom";
 import { useSnippet } from "../../entities/snippet/api";
 import { useAuth } from "../../app/providers/useAuth";
-import { useState } from "react";
-import { http, toHttpError } from "../../shared/api/http";
-import { useQueryClient } from "@tanstack/react-query";
 import { BackLink } from "../../shared/ui/BackLink";
 import SnippetDetailsView from "./ui/SnippetDetailsView";
 import { Skeleton } from "../../shared/ui/Skeleton";
 import CommentFormView from "./ui/CommentFormView";
 import CommentsListView from "./ui/CommentsListView";
-import { useSnippetComments, emitSnippetComment } from "../../shared/socket";
+import { useSnippetComments } from "../../shared/socket";
+import { useCommentForm } from "../../entities/snippet/hooks";
 
 export default function SnippetPage() {
   const { id } = useParams();
@@ -18,52 +16,10 @@ export default function SnippetPage() {
     Number.isFinite(snippetId) ? snippetId : undefined
   );
   const { user } = useAuth();
-  const [content, setContent] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [ok, setOk] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
-  const qc = useQueryClient();
 
   useSnippetComments(Number.isFinite(snippetId) ? snippetId : undefined);
 
-  const submit = async () => {
-    setError(null);
-    setOk(null);
-    setPending(true);
-    try {
-      const res = await http.post("/comments", { content, snippetId });
-      let createdId: number | undefined;
-      const rawUnknown: unknown = res.data;
-      if (rawUnknown && typeof rawUnknown === "object") {
-        const rawObj = rawUnknown as Record<string, unknown>;
-        if (typeof rawObj.id !== "undefined") createdId = Number(rawObj.id);
-        else if (
-          rawObj.data &&
-          typeof rawObj.data === "object" &&
-          rawObj.data !== null &&
-          typeof (rawObj.data as Record<string, unknown>).id !== "undefined"
-        ) {
-          createdId = Number(
-            (rawObj.data as Record<string, unknown>).id as unknown as number
-          );
-        }
-      }
-      emitSnippetComment({
-        content,
-        snippetId,
-        id: createdId,
-        user: { username: user?.username || "unknown" },
-      });
-      setContent("");
-      setOk("Комментарий отправлен");
-      qc.invalidateQueries({ queryKey: ["snippet", snippetId] });
-    } catch (e) {
-      const err = toHttpError(e);
-      setError(err.message || "Не удалось отправить комментарий");
-    } finally {
-      setPending(false);
-    }
-  };
+  const commentForm = useCommentForm(snippetId);
 
   if (status === "pending") {
     return (
@@ -128,12 +84,12 @@ export default function SnippetPage() {
 
       {user ? (
         <CommentFormView
-          content={content}
-          onChange={setContent}
-          onSubmit={submit}
-          pending={pending}
-          error={error}
-          ok={ok}
+          content={commentForm.content}
+          onChange={commentForm.setContent}
+          onSubmit={commentForm.submit}
+          pending={commentForm.pending}
+          error={commentForm.error}
+          ok={commentForm.ok}
         />
       ) : (
         <p className="text-sm text-gray-500 dark:text-gray-400">

@@ -19,10 +19,8 @@ export default function QuestionPage() {
   const { user } = useAuth();
   const { data: question, status } = useQuestion(id);
 
-  // Подписываемся на обновления ответов через вебсокеты
   useQuestionAnswers(id);
 
-  // Используем новые хуки для бизнес-логики
   const answerForm = useAnswerForm(id!);
   const isOwner = useQuestionOwnership(question);
   const {
@@ -41,7 +39,7 @@ export default function QuestionPage() {
           <Skeleton height={80} className="rounded" />
           <Skeleton height={180} className="rounded" />
         </div>
-        {/* Форма ответа */}
+        {/* Форма ответа  */}
         <div className="space-y-2">
           <Skeleton width={220} height={20} />
           <Skeleton height={96} className="rounded" />

@@ -14,6 +14,7 @@ export default function AccountPage() {
   const idForStat = me?.id ?? userId;
   const { data: stat, status: statStatus } = useUserStatistic(idForStat);
 
+  // Используем хук для форм аккаунта
   const accountForms = useAccountForms();
   const canEdit = !!authUser;
 
