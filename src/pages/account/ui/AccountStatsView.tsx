@@ -26,7 +26,7 @@ export const AccountStatsView = memo(function AccountStatsView({
       {status === "error" && (
         <p className="text-red-600">Не удалось загрузить статистику.</p>
       )}
-      {statistic ? (
+      {status === "success" && statistic && (
         <ul className="grid grid-cols-2 gap-2 text-sm">
           <li className="border rounded p-2">
             Сниппеты: {statistic.snippetsCount}
@@ -51,7 +51,8 @@ export const AccountStatsView = memo(function AccountStatsView({
             Обычных ответов: {statistic.regularAnswersCount}
           </li>
         </ul>
-      ) : (
+      )}
+      {status === "success" && !statistic && (
         <p className="text-gray-500">Нет данных статистики.</p>
       )}
     </section>

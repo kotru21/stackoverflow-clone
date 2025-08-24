@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { Skeleton } from "@/shared/ui/Skeleton";
+import { Button } from "@/shared/ui/Button";
 
 export type PasswordFormViewProps = {
   oldPassword: string;
@@ -57,12 +58,13 @@ export const PasswordFormView = memo(function PasswordFormView({
             disabled={isPending}
           />
         </div>
-        <button
+        <Button
           onClick={onSubmit}
           disabled={isPending || !oldPassword || !newPassword}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
-          {isPending ? "Сохранение..." : "Сменить пароль"}
-        </button>
+          loading={isPending}
+          variant="primary">
+          Сменить пароль
+        </Button>
       </div>
     </div>
   );

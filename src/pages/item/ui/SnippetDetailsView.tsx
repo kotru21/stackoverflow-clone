@@ -10,7 +10,7 @@ export type SnippetDetailsViewProps = {
   likesCount?: number;
   dislikesCount?: number;
   commentsCount?: number;
-  actions?: React.ReactNode; // зона для кнопок (редактирование / удаление)
+  actions?: React.ReactNode;
 };
 
 export const SnippetDetailsView = memo(function SnippetDetailsView({

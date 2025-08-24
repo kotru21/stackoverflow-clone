@@ -1,4 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Button } from "@/shared/ui/Button";
 
 type ClampProps = {
   children: React.ReactNode;
@@ -80,27 +81,26 @@ export const Clamp = memo(function Clamp({
         <div className="mt-2">
           {mode === "toggle" ? (
             expanded ? (
-              <button
+              <Button
                 type="button"
-                onClick={handleLess}
-                className="text-blue-600 hover:underline dark:text-blue-400 text-sm">
+                variant="link"
+                size="xs"
+                onClick={handleLess}>
                 {lessLabel}
-              </button>
+              </Button>
             ) : (
-              <button
+              <Button
                 type="button"
-                onClick={handleMore}
-                className="text-blue-600 hover:underline dark:text-blue-400 text-sm">
+                variant="link"
+                size="xs"
+                onClick={handleMore}>
                 {moreLabel}
-              </button>
+              </Button>
             )
           ) : (
-            <button
-              type="button"
-              onClick={handleMore}
-              className="text-blue-600 hover:underline dark:text-blue-400 text-sm">
+            <Button type="button" variant="link" size="xs" onClick={handleMore}>
               {moreLabel}
-            </button>
+            </Button>
           )}
         </div>
       )}

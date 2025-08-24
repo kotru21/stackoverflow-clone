@@ -1,5 +1,6 @@
 import { memo, useState } from "react";
 import Avatar from "@/shared/ui/Avatar";
+import { Button } from "@/shared/ui/Button";
 
 export type Comment = {
   id: number;
@@ -52,7 +53,6 @@ function CommentItem({
 }) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(comment.content);
-
   const save = () => {
     if (!onUpdate) return;
     onUpdate(comment.id, value);
@@ -71,16 +71,12 @@ function CommentItem({
         </div>
         {isOwner && !editing && (
           <div className="flex gap-1">
-            <button
-              onClick={() => setEditing(true)}
-              className="text-xs px-2 py-0.5 rounded border">
+            <Button onClick={() => setEditing(true)} size="xs">
               Изм.
-            </button>
-            <button
-              onClick={del}
-              className="text-xs px-2 py-0.5 rounded border border-red-600 text-red-600">
+            </Button>
+            <Button onClick={del} size="xs" variant="danger">
               Удал.
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -96,19 +92,17 @@ function CommentItem({
             className="w-full border rounded px-2 py-1 text-sm"
           />
           <div className="flex gap-2">
-            <button
-              onClick={save}
-              className="px-2 py-0.5 text-xs rounded bg-blue-600 text-white">
+            <Button onClick={save} size="xs" variant="primary">
               Сохранить
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => {
                 setValue(comment.content);
                 setEditing(false);
               }}
-              className="px-2 py-0.5 text-xs rounded border">
+              size="xs">
               Отмена
-            </button>
+            </Button>
           </div>
         </div>
       )}

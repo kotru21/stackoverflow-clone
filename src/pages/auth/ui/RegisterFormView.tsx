@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { memo } from "react";
+import { Button } from "@/shared/ui/Button";
 import type { FormEvent, InputHTMLAttributes } from "react";
 
 export type RegisterFormViewProps = {
@@ -61,11 +62,14 @@ function RegisterFormView({
           )}
         </div>
         {errors?.root && <p className="text-xs text-red-600">{errors.root}</p>}
-        <button
+        <Button
+          type="submit"
           disabled={isSubmitting}
-          className="w-full bg-black text-white dark:bg-white dark:text-black rounded py-2 disabled:opacity-50">
-          {isSubmitting ? "Создание..." : "Создать аккаунт"}
-        </button>
+          loading={isSubmitting}
+          variant="primary"
+          className="w-full">
+          Создать аккаунт
+        </Button>
       </form>
       <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">
         Уже есть аккаунт?{" "}

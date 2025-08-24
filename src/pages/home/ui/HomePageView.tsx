@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { Button } from "@/shared/ui/Button";
 import { Skeleton } from "@/shared/ui/Skeleton";
 import type { ReactNode, RefCallback } from "react";
 
@@ -37,26 +38,22 @@ function HomePageView({
         <h1 className="text-2xl font-semibold">{title}</h1>
         {mode && onModeChange && (
           <div className="inline-flex rounded border overflow-hidden">
-            <button
+            <Button
               type="button"
-              className={`px-3 py-1 text-sm ${
-                mode === "questions"
-                  ? "bg-gray-200 dark:bg-neutral-700"
-                  : "bg-transparent"
-              }`}
-              onClick={() => onModeChange("questions")}>
+              size="sm"
+              variant={mode === "questions" ? "outline" : "ghost"}
+              onClick={() => onModeChange("questions")}
+              className="rounded-none">
               Вопросы
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
-              className={`px-3 py-1 text-sm ${
-                mode === "snippets"
-                  ? "bg-gray-200 dark:bg-neutral-700"
-                  : "bg-transparent"
-              }`}
-              onClick={() => onModeChange("snippets")}>
+              size="sm"
+              variant={mode === "snippets" ? "outline" : "ghost"}
+              onClick={() => onModeChange("snippets")}
+              className="rounded-none border-l">
               Сниппеты
-            </button>
+            </Button>
           </div>
         )}
       </div>

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { memo } from "react";
+import { Button } from "@/shared/ui/Button";
 import Avatar from "../../shared/ui/Avatar";
 
 export type HeaderViewProps = {
@@ -28,12 +29,13 @@ function HeaderView({
           kinda StackOverflow
         </Link>
         <div className="ml-auto flex items-center gap-3 text-sm">
-          <button
+          <Button
             onClick={onToggleTheme}
-            className="px-2 py-1 border rounded"
+            size="xs"
+            variant="outline"
             aria-label="Toggle theme">
             {theme === "dark" ? "Light" : "Dark"}
-          </button>
+          </Button>
           {user ? (
             <>
               <Link
@@ -43,21 +45,23 @@ function HeaderView({
                 <Avatar username={user.username} size={24} />
                 {user.username}
               </Link>
-              <Link to="/create" className="px-2 py-1 border rounded">
-                Создать
+              <Link to="/create" className="contents">
+                <Button size="xs">Создать</Button>
               </Link>
-              <Link to="/my" className="px-2 py-1 border rounded">
-                Мои
+              <Link to="/my" className="contents">
+                <Button size="xs">Мои</Button>
               </Link>
-              <button onClick={onLogout} className="px-2 py-1 border rounded">
-                Logout +{" "}
-              </button>
+              <Button onClick={onLogout} size="xs">
+                Logout
+              </Button>
             </>
           ) : (
             <>
               <Link to="/login">Login</Link>
-              <Link to="/register" className="px-2 py-1 border rounded">
-                Sign up
+              <Link to="/register" className="contents">
+                <Button size="xs" variant="primary">
+                  Sign up
+                </Button>
               </Link>
             </>
           )}

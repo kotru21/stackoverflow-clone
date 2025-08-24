@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Button } from "@/shared/ui/Button";
 import { useNavigate } from "react-router-dom";
 import CodeEditor from "@/shared/ui/CodeEditor";
 import { useQuestionForm, useSnippetForm } from "./hooks";
@@ -14,24 +15,20 @@ export default function CreatePage() {
     <div className="bg-white p-6 rounded-lg shadow space-y-6">
       {/* Tabs */}
       <div className="flex gap-4 border-b">
-        <button
+        <Button
           onClick={() => setMode("question")}
-          className={`pb-2 px-1 border-b-2 transition ${
-            mode === "question"
-              ? "border-blue-500 text-blue-600"
-              : "border-transparent text-gray-600 hover:text-gray-800"
-          }`}>
+          variant={mode === "question" ? "outline" : "ghost"}
+          size="sm"
+          className="rounded-none border-b-2 !border-0">
           Вопрос
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => setMode("snippet")}
-          className={`pb-2 px-1 border-b-2 transition ${
-            mode === "snippet"
-              ? "border-blue-500 text-blue-600"
-              : "border-transparent text-gray-600 hover:text-gray-800"
-          }`}>
+          variant={mode === "snippet" ? "outline" : "ghost"}
+          size="sm"
+          className="rounded-none border-b-2 !border-0">
           Сниппет
-        </button>
+        </Button>
       </div>
 
       {/* Question Form */}
@@ -87,18 +84,19 @@ export default function CreatePage() {
           )}
 
           <div className="flex gap-3">
-            <button
+            <Button
               type="submit"
               disabled={questionForm.isPending}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
-              {questionForm.isPending ? "Создание..." : "Создать вопрос"}
-            </button>
-            <button
+              loading={questionForm.isPending}
+              variant="primary">
+              Создать вопрос
+            </Button>
+            <Button
               type="button"
               onClick={() => navigate("/")}
-              className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+              variant="secondary">
               Отмена
-            </button>
+            </Button>
           </div>
         </form>
       )}
@@ -148,18 +146,19 @@ export default function CreatePage() {
           )}
 
           <div className="flex gap-3">
-            <button
+            <Button
               type="submit"
               disabled={snippetForm.isPending}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
-              {snippetForm.isPending ? "Создание..." : "Создать сниппет"}
-            </button>
-            <button
+              loading={snippetForm.isPending}
+              variant="primary">
+              Создать сниппет
+            </Button>
+            <Button
               type="button"
               onClick={() => navigate("/")}
-              className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+              variant="secondary">
               Отмена
-            </button>
+            </Button>
           </div>
         </form>
       )}

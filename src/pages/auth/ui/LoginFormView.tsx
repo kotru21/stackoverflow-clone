@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { memo } from "react";
+import { Button } from "@/shared/ui/Button";
 import type { FormEvent, InputHTMLAttributes } from "react";
 
 export type LoginFormViewProps = {
@@ -47,11 +48,14 @@ function LoginFormView({
           )}
         </div>
         {errors?.root && <p className="text-xs text-red-600">{errors.root}</p>}
-        <button
+        <Button
+          type="submit"
           disabled={isSubmitting}
-          className="w-full bg-black text-white dark:bg-white dark:text-black rounded py-2 disabled:opacity-50">
-          {isSubmitting ? "Вход..." : "Войти"}
-        </button>
+          loading={isSubmitting}
+          variant="primary"
+          className="w-full">
+          Войти
+        </Button>
       </form>
       <p className="text-sm text-gray-500 mt-3">
         Нет аккаунта?{" "}

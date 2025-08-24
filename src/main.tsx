@@ -3,8 +3,8 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import HomePage from "@/pages/home/HomePage";
-import QuestionPage from "@/pages/question/QuestionPage";
-import SnippetPage from "@/pages/snippet/SnippetPage";
+import QuestionDetailsPage from "@/pages/item/QuestionDetailsPage";
+import SnippetDetailsPage from "@/pages/item/SnippetDetailsPage";
 import AccountPage from "@/pages/account/AccountPage";
 import LoginPage from "@/pages/auth/LoginPage.tsx";
 import RegisterPage from "@/pages/auth/RegisterPage.tsx";
@@ -22,8 +22,8 @@ const router = createBrowserRouter([
     element: <App />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: "questions/:id", element: <QuestionPage /> },
-      { path: "snippets/:id", element: <SnippetPage /> },
+      { path: "questions/:id", element: <QuestionDetailsPage /> },
+      { path: "snippets/:id", element: <SnippetDetailsPage /> },
       { path: "account", element: <AccountPage /> },
       {
         element: <RequireAuth />,

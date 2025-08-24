@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { Button } from "@/shared/ui/Button";
 import Avatar from "@/shared/ui/Avatar";
 import { ExpandableText } from "@/shared/ui/ExpandableText";
 import { Clamp } from "@/shared/ui/Clamp";
@@ -87,34 +88,35 @@ export const ItemCommonCardView = memo(function ItemCommonCardView({
             <span>Answers: {answersCount}</span>
           )}
           {onMoreClick && (
-            <button
+            <Button
               type="button"
               onClick={onMoreClick}
-              className="ml-auto px-2 py-1 border rounded">
+              size="xs"
+              className="ml-auto">
               Answers →
-            </button>
+            </Button>
           )}
         </div>
       ) : (
         <div className="text-xs text-gray-500 dark:text-gray-400">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-              <button
+              <Button
                 type="button"
                 disabled={!canInteract || isPending}
                 onClick={onLike}
-                className="px-2 py-1 border rounded disabled:opacity-50"
+                size="xs"
                 aria-label="Like">
                 Like
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 disabled={!canInteract || isPending}
                 onClick={onDislike}
-                className="px-2 py-1 border rounded disabled:opacity-50"
+                size="xs"
                 aria-label="Dislike">
                 Dislike
-              </button>
+              </Button>
             </div>
             {typeof likesCount !== "undefined" && (
               <span>Likes: {likesCount}</span>
@@ -123,14 +125,16 @@ export const ItemCommonCardView = memo(function ItemCommonCardView({
               <span>Dislikes: {dislikesCount}</span>
             )}
             {(onCommentsClick || onMoreClick) && (
-              <button
+              <Button
                 type="button"
-                className="ml-auto underline underline-offset-2 hover:text-gray-700 dark:hover:text-gray-200"
+                variant="link"
+                size="xs"
+                className="ml-auto"
                 onClick={onCommentsClick || onMoreClick}>
                 {typeof commentsCount !== "undefined"
                   ? `Comments: ${commentsCount}`
                   : "Comments →"}
-              </button>
+              </Button>
             )}
           </div>
           {!canInteract && (

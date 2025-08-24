@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { ExpandableText } from "@/shared/ui/ExpandableText";
+import { Button } from "@/shared/ui/Button";
 
 export type AnswerItemViewProps = {
   content: string;
@@ -48,36 +49,34 @@ export const AnswerItemView = memo(function AnswerItemView({
           )}
           {canMark &&
             (isCorrect ? (
-              <button
+              <Button
                 type="button"
                 onClick={onMarkIncorrect}
                 disabled={!!pending}
-                className="text-xs px-2 py-1 border rounded disabled:opacity-50">
+                size="xs">
                 Снять метку
-              </button>
+              </Button>
             ) : (
-              <button
+              <Button
                 type="button"
                 onClick={onMarkCorrect}
                 disabled={!!pending}
-                className="text-xs px-2 py-1 border rounded disabled:opacity-50">
+                size="xs">
                 Пометить как верный
-              </button>
+              </Button>
             ))}
           {canEdit && (
             <>
-              <button
-                type="button"
-                onClick={onEdit}
-                className="text-xs px-2 py-1 border rounded">
+              <Button type="button" onClick={onEdit} size="xs">
                 Изм.
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={onDelete}
-                className="text-xs px-2 py-1 border rounded border-red-600 text-red-600">
+                size="xs"
+                variant="danger">
                 Удал.
-              </button>
+              </Button>
             </>
           )}
         </div>

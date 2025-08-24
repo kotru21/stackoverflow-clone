@@ -21,18 +21,14 @@ export default function AccountPage() {
     <div className="space-y-4">
       <BackLink />
 
-      {me && (
-        <AccountInfoView
-          id={me.id}
-          username={me.username}
-          role={me.role}
-          loading={meStatus !== "success"}
-        />
-      )}
+      <AccountInfoView
+        id={me?.id}
+        username={me?.username}
+        role={me?.role}
+        loading={meStatus === "pending"}
+      />
 
-      {stat && (
-        <AccountStatsView statistic={stat.statistic} status={statStatus} />
-      )}
+      <AccountStatsView statistic={stat?.statistic} status={statStatus} />
 
       {canEdit && (
         <section className="space-y-3">

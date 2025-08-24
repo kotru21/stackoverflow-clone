@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { Button } from "@/shared/ui/Button";
 
 export type ProfileFormViewProps = {
   username: string;
@@ -8,7 +9,7 @@ export type ProfileFormViewProps = {
   loading?: boolean;
 };
 
-import { Skeleton } from "../../../shared/ui/Skeleton";
+import { Skeleton } from "@/shared/ui/Skeleton";
 
 export const ProfileFormView = memo(function ProfileFormView({
   username,
@@ -33,13 +34,15 @@ export const ProfileFormView = memo(function ProfileFormView({
             onChange={(e) => onUsernameChange(e.target.value)}
             placeholder="username"
           />
-          <button
+          <Button
             type="button"
             disabled={!!isPending}
+            loading={!!isPending}
             onClick={onSave}
-            className="px-3 py-1.5 border rounded disabled:opacity-50">
+            size="sm"
+            variant="primary">
             Сохранить профиль
-          </button>
+          </Button>
         </>
       )}
     </div>
