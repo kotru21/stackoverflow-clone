@@ -1,13 +1,13 @@
 import { useParams } from "react-router-dom";
-import { useSnippet } from "../../entities/snippet/api";
-import { useAuth } from "../../app/providers/useAuth";
-import { BackLink } from "../../shared/ui/BackLink";
+import { useSnippet } from "@/entities/snippet/api";
+import { useAuth } from "@/app/providers/useAuth";
+import { BackLink } from "@/shared/ui/BackLink";
 import SnippetDetailsView from "./ui/SnippetDetailsView";
-import { Skeleton } from "../../shared/ui/Skeleton";
+import { Skeleton } from "@/shared/ui/Skeleton";
 import CommentFormView from "./ui/CommentFormView";
 import CommentsListView from "./ui/CommentsListView";
-import { useSnippetComments } from "../../shared/socket";
-import { useCommentForm } from "../../entities/snippet/hooks";
+import { useSnippetComments } from "@/shared/socket";
+import { useCommentForm } from "@/entities/snippet/hooks";
 
 export default function SnippetPage() {
   const { id } = useParams();

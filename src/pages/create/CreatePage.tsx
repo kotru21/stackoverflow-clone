@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import CodeEditor from "../../shared/ui/CodeEditor";
+import CodeEditor from "@/shared/ui/CodeEditor";
 import { useQuestionForm, useSnippetForm } from "./hooks";
 
 export default function CreatePage() {

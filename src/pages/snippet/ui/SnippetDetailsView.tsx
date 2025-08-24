@@ -1,6 +1,6 @@
 import { memo } from "react";
-import { CodeBlock } from "../../../shared/ui/CodeBlock";
-import Avatar from "../../../shared/ui/Avatar";
+import { CodeBlock } from "@/shared/ui/CodeBlock";
+import Avatar from "@/shared/ui/Avatar";
 
 export type SnippetDetailsViewProps = {
   id: number;

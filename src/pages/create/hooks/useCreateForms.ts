@@ -2,13 +2,13 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
-import { useCreateQuestion } from "../../../entities/question/api";
-import { useCreateSnippet } from "../../../entities/snippet/api";
+import { useCreateQuestion } from "@/entities/question/api";
+import { useCreateSnippet } from "@/entities/snippet/api";
 import {
   normalizeLanguageInput,
   SUPPORTED_LANG_HINT,
-} from "../../../shared/services/languageService";
-import { toHttpError } from "../../../shared/api/http";
+} from "@/shared/services/languageService";
+import { toHttpError } from "@/shared/api/http";
 
 // Question Form
 const questionSchema = z.object({

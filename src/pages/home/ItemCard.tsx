@@ -1,8 +1,8 @@
 import { memo } from "react";
-import type { Question } from "../../entities/question/types";
-import type { Snippet } from "../../entities/snippet/types";
-import { useAuth } from "../../app/providers/useAuth";
-import { useMarkSnippet } from "../../entities/snippet/api";
+import type { Question } from "@/entities/question/types";
+import type { Snippet } from "@/entities/snippet/types";
+import { useAuth } from "@/app/providers/useAuth";
+import { useMarkSnippet } from "@/entities/snippet/api";
 import { ItemCommonCardView } from "./ui/ItemCommonCardView";
 
 type BaseProps = {

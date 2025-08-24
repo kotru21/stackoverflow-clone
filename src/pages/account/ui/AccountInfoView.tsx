@@ -7,7 +7,7 @@ export type AccountInfoViewProps = {
   loading?: boolean;
 };
 
-import { Skeleton } from "../../../shared/ui/Skeleton";
+import { Skeleton } from "@/shared/ui/Skeleton";
 
 export const AccountInfoView = memo(function AccountInfoView({
   id,

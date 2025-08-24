@@ -5,7 +5,7 @@ import type {
   Token as PrismToken,
 } from "prism-react-renderer";
 import { memo, useMemo } from "react";
-import { useTheme } from "../../app/providers/useTheme";
+import { useTheme } from "@/app/providers/useTheme";
 
 export type CodeBlockProps = {
   code: string;

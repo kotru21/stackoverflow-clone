@@ -1,8 +1,8 @@
 import { Outlet } from "react-router-dom";
 import { useCallback } from "react";
-import { useAuth } from "./app/providers/useAuth";
-import { useTheme } from "./app/providers/useTheme";
-import Header from "./app/Header";
+import { useAuth } from "@/app/providers/useAuth";
+import { useTheme } from "@/app/providers/useTheme";
+import Header from "@/app/Header";
 
 export default function App() {
   const { user, logout } = useAuth();

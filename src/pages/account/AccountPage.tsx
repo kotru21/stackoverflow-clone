@@ -1,11 +1,11 @@
-import { useAuth } from "../../app/providers/useAuth";
-import { BackLink } from "../../shared/ui/BackLink";
-import { useMe, useUserStatistic } from "../../entities/user/api";
+import { useAuth } from "@/app/providers/useAuth";
+import { BackLink } from "@/shared/ui/BackLink";
+import { useMe, useUserStatistic } from "@/entities/user/api";
 import AccountInfoView from "./ui/AccountInfoView";
 import AccountStatsView from "./ui/AccountStatsView";
 import ProfileFormView from "./ui/ProfileFormView";
 import PasswordFormView from "./ui/PasswordFormView";
-import { useAccountForms } from "../../entities/user/hooks";
+import { useAccountForms } from "@/entities/user/hooks";
 
 export default function AccountPage() {
   const { user: authUser } = useAuth();

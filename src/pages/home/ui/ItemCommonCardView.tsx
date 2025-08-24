@@ -1,8 +1,8 @@
 import { memo } from "react";
-import Avatar from "../../../shared/ui/Avatar";
-import { ExpandableText } from "../../../shared/ui/ExpandableText";
-import { Clamp } from "../../../shared/ui/Clamp";
-import { CodeBlock } from "../../../shared/ui/CodeBlock";
+import Avatar from "@/shared/ui/Avatar";
+import { ExpandableText } from "@/shared/ui/ExpandableText";
+import { Clamp } from "@/shared/ui/Clamp";
+import { CodeBlock } from "@/shared/ui/CodeBlock";
 
 export type ItemCommonCardViewProps = {
   mode: "question" | "snippet";

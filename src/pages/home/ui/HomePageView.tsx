@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Skeleton } from "../../../shared/ui/Skeleton";
+import { Skeleton } from "@/shared/ui/Skeleton";
 import type { ReactNode, RefCallback } from "react";
 
 export type HomeRow = {

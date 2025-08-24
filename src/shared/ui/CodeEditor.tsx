@@ -5,7 +5,8 @@ import type {
   RenderProps,
   Token as PrismToken,
 } from "prism-react-renderer";
-import { useTheme } from "../../app/providers/useTheme";
+
+import { useTheme } from "@/app/providers/useTheme";
 
 type Props = {
   value: string;

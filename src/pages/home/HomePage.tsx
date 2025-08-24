@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import { useQuestions } from "../../entities/question/api";
-import type { Question } from "../../entities/question/types";
-import { useSnippets } from "../../entities/snippet/api";
-import type { Snippet } from "../../entities/snippet/types";
+import { useQuestions } from "@/entities/question/api";
+import type { Question } from "@/entities/question/types";
+import { useSnippets } from "@/entities/snippet/api";
+import type { Snippet } from "@/entities/snippet/types";
 import { ItemCard } from "./ItemCard";
 import HomePageView from "./ui/HomePageView";
 

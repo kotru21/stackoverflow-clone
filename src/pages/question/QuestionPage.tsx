@@ -1,18 +1,18 @@
 import { useParams } from "react-router-dom";
-import { useQuestion } from "../../entities/question/api";
-import type { Question, Answer } from "../../entities/question/types";
-import { useAuth } from "../../app/providers/useAuth";
+import { useQuestion } from "@/entities/question/api";
+import type { Question, Answer } from "@/entities/question/types";
+import { useAuth } from "@/app/providers/useAuth";
 import QuestionDetailsView from "./ui/QuestionDetailsView";
 import AnswerItemView from "./ui/AnswerItemView";
 import AnswerFormView from "./ui/AnswerFormView";
-import { BackLink } from "../../shared/ui/BackLink";
-import { Skeleton } from "../../shared/ui/Skeleton";
-import { useQuestionAnswers } from "../../shared/socket";
+import { BackLink } from "@/shared/ui/BackLink";
+import { Skeleton } from "@/shared/ui/Skeleton";
+import { useQuestionAnswers } from "@/shared/socket";
 import {
   useAnswerForm,
   useQuestionOwnership,
   useAnswerActions,
-} from "../../entities/question/hooks";
+} from "@/entities/question/hooks";
 
 export default function QuestionPage() {
   const { id } = useParams<{ id: string }>();

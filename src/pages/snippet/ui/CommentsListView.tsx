@@ -1,5 +1,5 @@
 import { memo } from "react";
-import Avatar from "../../../shared/ui/Avatar";
+import Avatar from "@/shared/ui/Avatar";
 
 export type Comment = {
   id: number;

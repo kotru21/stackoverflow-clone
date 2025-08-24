@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { CodeBlock } from "../../../shared/ui/CodeBlock";
+import { CodeBlock } from "@/shared/ui/CodeBlock";
 
 export type QuestionDetailsViewProps = {
   title: string;

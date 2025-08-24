@@ -1,6 +1,6 @@
 import { memo } from "react";
-import { Skeleton } from "../../../shared/ui/Skeleton";
-import type { UserStatistic } from "../../../entities/user/types";
+import { Skeleton } from "@/shared/ui/Skeleton";
+import type { UserStatistic } from "@/entities/user/types";
 
 export type AccountStatsViewProps = {
   statistic?: UserStatistic;

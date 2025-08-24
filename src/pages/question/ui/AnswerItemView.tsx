@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { ExpandableText } from "../../../shared/ui/ExpandableText";
+import { ExpandableText } from "@/shared/ui/ExpandableText";
 
 export type AnswerItemViewProps = {
   content: string;
