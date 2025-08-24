@@ -1,7 +1,7 @@
 import { BackLink } from "@/shared/ui/BackLink";
 import CodeEditor from "@/shared/ui/CodeEditor";
-import QuestionDetailsView from "./ui/QuestionDetailsView";
-import SnippetDetailsView from "./ui/SnippetDetailsView";
+import QuestionDetailsView from "./question/ui/QuestionDetailsView";
+import SnippetDetailsView from "./snippet/ui/SnippetDetailsView";
 import GenericTextForm from "./ui/GenericTextForm";
 import CommentsListView from "./ui/CommentsListView";
 import { ActionButtons } from "./ui/ActionButtons";
@@ -9,7 +9,7 @@ import { EditPanel } from "./ui/EditPanel";
 import { LoadingSkeleton } from "./ui/LoadingSkeleton";
 import type { ItemState, QuestionState, SnippetState } from "./hooks/itemTypes";
 import type { Answer } from "@/entities/question/types";
-import { EditableAnswerItem } from "./ui/EditableAnswerItem";
+import { EditableAnswerItem } from "./question/ui/EditableAnswerItem";
 import { useAuth } from "@/app/providers/useAuth";
 
 export function ItemDetailsView(props: ItemState) {

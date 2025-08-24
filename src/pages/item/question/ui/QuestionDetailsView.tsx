@@ -8,7 +8,7 @@ export type QuestionDetailsViewProps = {
   actions?: React.ReactNode;
 };
 
-function QuestionDetailsView({
+export const QuestionDetailsView = memo(function QuestionDetailsView({
   title,
   description,
   attachedCode,
@@ -26,6 +26,6 @@ function QuestionDetailsView({
       {attachedCode && <CodeBlock code={attachedCode} />}
     </div>
   );
-}
+});
 
-export default memo(QuestionDetailsView);
+export default QuestionDetailsView;

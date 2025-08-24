@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useAuth } from "@/app/providers/useAuth";
-import { useSnippetDetails } from "./hooks/useSnippetDetails";
+import { useSnippetDetails } from "./snippet/useSnippetDetails";
 import { ItemDetailsView } from "./ItemDetailsView";
 
 export function SnippetDetailsPage() {

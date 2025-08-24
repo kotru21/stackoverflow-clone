@@ -9,7 +9,7 @@ import {
 } from "@/entities/snippet/api";
 import { useCommentForm, useSnippetOwnership } from "@/entities/snippet/hooks";
 import { useSnippetComments } from "@/shared/socket";
-import type { SnippetState } from "./itemTypes";
+import type { SnippetState } from "../hooks/itemTypes";
 
 export function useSnippetDetails(rawId?: string): SnippetState {
   const navigate = useNavigate();
@@ -105,3 +105,5 @@ export function useSnippetDetails(rawId?: string): SnippetState {
     deleteComment: (id: number | string) => deleteCommentMut.mutate(Number(id)),
   } as const;
 }
+
+export default useSnippetDetails;

@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useAuth } from "@/app/providers/useAuth";
-import { useQuestionDetails } from "./hooks/useQuestionDetails";
+import { useQuestionDetails } from "./question";
 import { ItemDetailsView } from "./ItemDetailsView";
 
 export function QuestionDetailsPage() {
