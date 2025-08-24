@@ -14,6 +14,11 @@ import AnswerItemView from "./ui/AnswerItemView";
 import AnswerFormView from "./ui/AnswerFormView";
 import { BackLink } from "../../shared/ui/BackLink";
 import { Skeleton } from "../../shared/ui/Skeleton";
+import {
+  useQuestionAnswers,
+  emitQuestionAnswer,
+  emitAnswerStateChange,
+} from "../../shared/socket";
 
 const schema = z.object({
   content: z.string().min(1, "Ответ не может быть пустым"),
@@ -28,7 +33,9 @@ export default function QuestionPage() {
   const { mutateAsync: createAnswer, isPending } = useCreateAnswer(id!);
   const { mutateAsync: setAnswerState, isPending: markPending } =
     useSetAnswerState(id!);
-  // debug-флаг и временные логи удалены
+
+  useQuestionAnswers(id);
+
   const {
     register,
     handleSubmit,
@@ -37,11 +44,40 @@ export default function QuestionPage() {
   } = useForm<FormData>({ resolver: zodResolver(schema) });
 
   const onSubmit = async (data: FormData) => {
-    await createAnswer(data.content);
-    reset({ content: "" });
-  };
+    try {
+      const res = await createAnswer(data.content);
 
-  // удалены dev-логирование и принудительный refresh
+      let createdId: number | string | undefined;
+      const rawUnknown: unknown = res;
+      if (rawUnknown && typeof rawUnknown === "object") {
+        const rawObj = rawUnknown as Record<string, unknown>;
+        if (typeof rawObj.id !== "undefined")
+          createdId = rawObj.id as number | string;
+        else if (
+          rawObj.data &&
+          typeof rawObj.data === "object" &&
+          rawObj.data !== null &&
+          typeof (rawObj.data as Record<string, unknown>).id !== "undefined"
+        ) {
+          createdId = (rawObj.data as Record<string, unknown>).id as
+            | number
+            | string;
+        }
+      }
+
+      emitQuestionAnswer({
+        content: data.content,
+        questionId: id!,
+        id: createdId,
+        user: { username: user?.username || "unknown" },
+        isCorrect: false,
+      });
+
+      reset({ content: "" });
+    } catch (error) {
+      console.error("Ошибка при создании ответа:", error);
+    }
+  };
 
   if (status === "pending")
     return (
@@ -69,8 +105,6 @@ export default function QuestionPage() {
       </div>
     );
   if (!question) return <p>Вопрос не найден</p>;
-  // Только автор вопроса может помечать ответы правильными/неправильными
-  // Поддерживаем разные возможные формы данных от API: user.id | userId | user.userId
   const qAny = question as unknown as Record<string, unknown>;
   const qUser =
     (qAny?.["user"] as Record<string, unknown> | undefined) ?? undefined;
@@ -113,6 +147,34 @@ export default function QuestionPage() {
     ((ownerId != null && String(user.id) === String(ownerId)) ||
       (ownerName != null && user.username === ownerName));
 
+  const handleMarkCorrect = async (answerId: string | number) => {
+    if (!isOwner) return;
+    try {
+      await setAnswerState({ answerId, state: "correct" });
+      emitAnswerStateChange({
+        questionId: id!,
+        answerId,
+        isCorrect: true,
+      });
+    } catch (error) {
+      console.error("Ошибка при изменении статуса ответа:", error);
+    }
+  };
+
+  const handleMarkIncorrect = async (answerId: string | number) => {
+    if (!isOwner) return;
+    try {
+      await setAnswerState({ answerId, state: "incorrect" });
+      emitAnswerStateChange({
+        questionId: id!,
+        answerId,
+        isCorrect: false,
+      });
+    } catch (error) {
+      console.error("Ошибка при изменении статуса ответа:", error);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <BackLink />
@@ -144,14 +206,8 @@ export default function QuestionPage() {
                 isCorrect={a.isCorrect}
                 canMark={isOwner}
                 pending={markPending}
-                onMarkCorrect={() => {
-                  if (!isOwner) return;
-                  setAnswerState({ answerId: a.id, state: "correct" });
-                }}
-                onMarkIncorrect={() => {
-                  if (!isOwner) return;
-                  setAnswerState({ answerId: a.id, state: "incorrect" });
-                }}
+                onMarkCorrect={() => handleMarkCorrect(a.id)}
+                onMarkIncorrect={() => handleMarkIncorrect(a.id)}
               />
             ))}
         </ul>
