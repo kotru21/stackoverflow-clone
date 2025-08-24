@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useAuth } from "../../../app/providers/useAuth";
+import { useAuth } from "@/app/providers/useAuth";
 import type { Question } from "../types";
 
 export function useQuestionOwnership(question: Question | undefined) {

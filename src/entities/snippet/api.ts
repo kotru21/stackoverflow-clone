@@ -139,3 +139,31 @@ export function useCreateSnippet() {
     },
   });
 }
+
+export function useUpdateSnippet(id: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (dto: { code?: string; language?: string }) => {
+      // API PATCH /snippets/{id}
+      const res = await http.patch<unknown>(`/snippets/${id}`, dto);
+      return res.data as unknown;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["snippet", id] });
+      qc.invalidateQueries({ queryKey: ["snippets"] });
+    },
+  });
+}
+
+export function useDeleteSnippet(id: number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const res = await http.delete<unknown>(`/snippets/${id}`);
+      return res.data as unknown;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["snippets"] });
+    },
+  });
+}

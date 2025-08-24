@@ -10,6 +10,7 @@ export type SnippetDetailsViewProps = {
   likesCount?: number;
   dislikesCount?: number;
   commentsCount?: number;
+  actions?: React.ReactNode; // зона для кнопок (редактирование / удаление)
 };
 
 export const SnippetDetailsView = memo(function SnippetDetailsView({
@@ -20,11 +21,13 @@ export const SnippetDetailsView = memo(function SnippetDetailsView({
   likesCount,
   dislikesCount,
   commentsCount,
+  actions,
 }: SnippetDetailsViewProps) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Сниппет #{id}</h1>
+        {actions && <div className="flex items-center gap-2">{actions}</div>}
         {language && (
           <span className="inline-flex items-center rounded bg-gray-100 dark:bg-neutral-700 px-2 py-0.5 text-xs font-medium text-gray-700 dark:text-gray-200">
             {language}

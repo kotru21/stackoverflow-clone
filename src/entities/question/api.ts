@@ -114,3 +114,31 @@ export function useCreateQuestion() {
     },
   });
 }
+
+export function useUpdateQuestion(id: string | number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (dto: CreateQuestionDto) => {
+      // API: PATCH /questions/{id}
+      const res = await http.patch<unknown>(`/questions/${id}`, dto);
+      return unwrapData<Question>(res.data as unknown);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["question", id] });
+      qc.invalidateQueries({ queryKey: ["questions"] });
+    },
+  });
+}
+
+export function useDeleteQuestion(id: string | number) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const res = await http.delete<unknown>(`/questions/${id}`);
+      return res.data as unknown;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["questions"] });
+    },
+  });
+}

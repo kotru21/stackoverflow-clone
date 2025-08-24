@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useQuestion } from "@/entities/question/api";
+import { useQuestion, useUpdateQuestion, useDeleteQuestion } from "@/entities/question/api";
 import type { Question, Answer } from "@/entities/question/types";
 import { useAuth } from "@/app/providers/useAuth";
 import QuestionDetailsView from "./ui/QuestionDetailsView";
@@ -8,28 +8,29 @@ import AnswerFormView from "./ui/AnswerFormView";
 import { BackLink } from "@/shared/ui/BackLink";
 import { Skeleton } from "@/shared/ui/Skeleton";
 import { useQuestionAnswers } from "@/shared/socket";
-import {
-  useAnswerForm,
-  useQuestionOwnership,
-  useAnswerActions,
-} from "@/entities/question/hooks";
+import { useAnswerForm, useQuestionOwnership, useAnswerActions } from "@/entities/question/hooks";
+import { useState } from "react";
+import CodeEditor from "@/shared/ui/CodeEditor";
+import { useNavigate } from "react-router-dom";
 
 export default function QuestionPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const { data: question, status } = useQuestion(id);
 
-  // Подписываемся на обновления ответов через вебсокеты
   useQuestionAnswers(id);
 
-  // Используем новые хуки для бизнес-логики
   const answerForm = useAnswerForm(id!);
   const isOwner = useQuestionOwnership(question);
-  const {
-    markCorrect,
-    markIncorrect,
-    isPending: markPending,
-  } = useAnswerActions(id!);
+  const { markCorrect, markIncorrect, isPending: markPending } = useAnswerActions(id!);
+
+  const updateMutation = useUpdateQuestion(id!);
+  const deleteMutation = useDeleteQuestion(id!);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editCode, setEditCode] = useState("");
+  const navigate = useNavigate();
 
   if (status === "pending")
     return (
@@ -68,14 +69,99 @@ export default function QuestionPage() {
     markIncorrect(answerId);
   };
 
+  const onStartEdit = () => {
+    if (!question) return;
+    setEditTitle(question.title);
+    setEditDescription(question.description);
+    setEditCode(question.attachedCode || "");
+    setIsEditing(true);
+  };
+
+  const onCancelEdit = () => setIsEditing(false);
+
+  const onSave = async () => {
+    try {
+      await updateMutation.mutateAsync({ title: editTitle, description: editDescription, attachedCode: editCode });
+      setIsEditing(false);
+    } catch {
+      alert("Не удалось сохранить изменения");
+    }
+  };
+
+  const onDelete = async () => {
+    if (!confirm("Удалить вопрос?")) return;
+    try {
+      await deleteMutation.mutateAsync();
+      navigate("/my?mode=questions");
+    } catch {
+      alert("Не удалось удалить вопрос");
+    }
+  };
+
+  const actionButtons = isOwner && !isEditing && (
+    <>
+      <button
+        onClick={onStartEdit}
+        className="px-2 py-1 text-xs rounded border bg-gray-100 dark:bg-neutral-800 hover:bg-gray-200 dark:hover:bg-neutral-700">
+        Редактировать
+      </button>
+      <button
+        onClick={onDelete}
+        disabled={deleteMutation.isPending}
+        className="px-2 py-1 text-xs rounded border border-red-600 text-red-600 hover:bg-red-50 disabled:opacity-50">
+        {deleteMutation.isPending ? "Удаление..." : "Удалить"}
+      </button>
+    </>
+  );
+
   return (
     <div className="space-y-4">
       <BackLink />
-      <QuestionDetailsView
-        title={(question as Question).title}
-        description={(question as Question).description}
-        attachedCode={(question as Question).attachedCode}
-      />
+      {!isEditing && (
+        <QuestionDetailsView
+          title={(question as Question).title}
+          description={(question as Question).description}
+          attachedCode={(question as Question).attachedCode}
+          actions={actionButtons}
+        />
+      )}
+      {isEditing && (
+        <div className="space-y-3 border rounded p-3">
+          <h1 className="text-xl font-semibold">Редактирование вопроса</h1>
+          <div className="space-y-1">
+            <label className="block text-xs font-medium">Заголовок</label>
+            <input
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              className="w-full border rounded px-2 py-1 text-sm"
+            />
+          </div>
+            <div className="space-y-1">
+            <label className="block text-xs font-medium">Описание</label>
+            <textarea
+              value={editDescription}
+              onChange={(e) => setEditDescription(e.target.value)}
+              rows={5}
+              className="w-full border rounded px-2 py-1 text-sm"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="block text-xs font-medium">Код</label>
+            <CodeEditor value={editCode} onChange={setEditCode} />
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={onSave}
+              disabled={updateMutation.isPending}
+              className="px-3 py-1 rounded bg-blue-600 text-white text-sm disabled:opacity-50">
+              {updateMutation.isPending ? "Сохранение..." : "Сохранить"}
+            </button>
+            <button onClick={onCancelEdit} className="px-3 py-1 rounded border text-sm">
+              Отмена
+            </button>
+          </div>
+        </div>
+      )}
       {user ? (
         <AnswerFormView
           onSubmit={answerForm.onSubmit}
