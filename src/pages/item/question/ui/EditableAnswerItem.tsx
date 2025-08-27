@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 import type { Answer } from "@/entities/question/types";
 import AnswerItemView from "./AnswerItemView";
 
@@ -13,7 +13,7 @@ interface EditableAnswerItemProps {
   onDelete: (id: string | number) => void;
 }
 
-export function EditableAnswerItem({
+export const EditableAnswerItem = memo(function EditableAnswerItem({
   answer,
   canMark,
   currentUser,
@@ -74,6 +74,6 @@ export function EditableAnswerItem({
       )}
     </div>
   );
-}
+});
 
 export default EditableAnswerItem;

@@ -40,7 +40,7 @@ export const CommentsListView = memo(function CommentsListView({
   );
 });
 
-function CommentItem({
+const CommentItem = memo(function CommentItem({
   comment,
   isOwner,
   onUpdate,
@@ -108,6 +108,6 @@ function CommentItem({
       )}
     </li>
   );
-}
+});
 
 export default CommentsListView;

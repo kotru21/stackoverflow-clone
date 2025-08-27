@@ -10,6 +10,7 @@ import { LoadingSkeleton } from "./ui/LoadingSkeleton";
 import type { ItemState, QuestionState, SnippetState } from "./hooks/itemTypes";
 import type { Answer } from "@/entities/question/types";
 import { EditableAnswerItem } from "./question/ui/EditableAnswerItem";
+import { memo, useMemo, useCallback } from "react";
 import { useAuth } from "@/app/providers/useAuth";
 
 export function ItemDetailsView(props: ItemState) {
@@ -22,7 +23,11 @@ export function ItemDetailsView(props: ItemState) {
   );
 }
 
-function QuestionSection({ state }: { state: QuestionState }) {
+const QuestionSection = memo(function QuestionSection({
+  state,
+}: {
+  state: QuestionState;
+}) {
   const { user } = useAuth();
   const {
     question,
@@ -42,6 +47,32 @@ function QuestionSection({ state }: { state: QuestionState }) {
     updateAnswer,
     deleteAnswer,
   } = state;
+  const answersList = useMemo(() => {
+    if (!question || !Array.isArray(question.answers)) return null;
+    return question.answers.map((a: Answer) => (
+      <EditableAnswerItem
+        key={a.id}
+        answer={a}
+        canMark={isOwner}
+        currentUser={user?.username}
+        onMarkCorrect={() => markCorrect(a.id)}
+        onMarkIncorrect={() => markIncorrect(a.id)}
+        markPending={markPending}
+        onUpdate={(id, content) => updateAnswer(id, content)}
+        onDelete={(id) => deleteAnswer(id)}
+      />
+    ));
+  }, [
+    question,
+    isOwner,
+    user?.username,
+    markCorrect,
+    markIncorrect,
+    markPending,
+    updateAnswer,
+    deleteAnswer,
+  ]);
+
   return (
     <div className="space-y-4">
       <BackLink />
@@ -109,32 +140,21 @@ function QuestionSection({ state }: { state: QuestionState }) {
           Войдите, чтобы оставить ответ.
         </p>
       )}
-      {question && (
+      {question && answersList && (
         <div>
           <h2 className="text-xl font-semibold mb-2">Ответы</h2>
-          <ul className="space-y-2">
-            {Array.isArray(question.answers) &&
-              question.answers!.map((a: Answer) => (
-                <EditableAnswerItem
-                  key={a.id}
-                  answer={a}
-                  canMark={isOwner}
-                  currentUser={user?.username}
-                  onMarkCorrect={() => markCorrect(a.id)}
-                  onMarkIncorrect={() => markIncorrect(a.id)}
-                  markPending={markPending}
-                  onUpdate={(id, content) => updateAnswer(id, content)}
-                  onDelete={(id) => deleteAnswer(id)}
-                />
-              ))}
-          </ul>
+          <ul className="space-y-2">{answersList}</ul>
         </div>
       )}
     </div>
   );
-}
+});
 
-function SnippetSection({ state }: { state: SnippetState }) {
+const SnippetSection = memo(function SnippetSection({
+  state,
+}: {
+  state: SnippetState;
+}) {
   const { user } = useAuth();
   const {
     snippet,
@@ -151,6 +171,25 @@ function SnippetSection({ state }: { state: SnippetState }) {
     updateComment,
     deleteComment,
   } = state;
+  const commentsData = useMemo(
+    () =>
+      snippet?.comments?.map((c) => ({
+        id: Number(c.id),
+        content: c.content,
+        user: { username: c.user?.username || "unknown" },
+      })) || [],
+    [snippet?.comments]
+  );
+
+  const handleUpdateComment = useCallback(
+    (cid: number, content: string) => updateComment(cid, content),
+    [updateComment]
+  );
+  const handleDeleteComment = useCallback(
+    (cid: number) => deleteComment(cid),
+    [deleteComment]
+  );
+
   return (
     <div className="space-y-4">
       <BackLink />
@@ -219,18 +258,14 @@ function SnippetSection({ state }: { state: SnippetState }) {
           Войдите, чтобы оставлять комментарии.
         </p>
       )}
-      {snippet?.comments && snippet.comments.length > 0 && (
+      {commentsData.length > 0 && (
         <CommentsListView
-          comments={snippet.comments.map((c) => ({
-            id: Number(c.id),
-            content: c.content,
-            user: { username: c.user?.username || "unknown" },
-          }))}
+          comments={commentsData}
           currentUser={user}
-          onUpdate={(cid, content) => updateComment(cid, content)}
-          onDelete={(cid) => deleteComment(cid)}
+          onUpdate={handleUpdateComment}
+          onDelete={handleDeleteComment}
         />
       )}
     </div>
   );
-}
+});

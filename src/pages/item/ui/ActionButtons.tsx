@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Button } from "@/shared/ui/Button";
 
 interface ActionButtonsProps {
@@ -6,7 +7,7 @@ interface ActionButtonsProps {
   deleting?: boolean;
 }
 
-export function ActionButtons({
+export const ActionButtons = memo(function ActionButtons({
   onEdit,
   onDelete,
   deleting,
@@ -21,6 +22,6 @@ export function ActionButtons({
       </Button>
     </div>
   );
-}
+});
 
 export default ActionButtons;

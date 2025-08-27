@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useCallback } from "react";
 import type { Question } from "@/entities/question/types";
 import type { Snippet } from "@/entities/snippet/types";
 import { useAuth } from "@/app/providers/useAuth";
@@ -59,6 +59,8 @@ function SnippetView({
   const { user: authUser } = useAuth();
   const { mutate: mark, isPending } = useMarkSnippet(item.id);
   const canInteract = !!authUser;
+  const like = useCallback(() => mark("like"), [mark]);
+  const dislike = useCallback(() => mark("dislike"), [mark]);
   return (
     <ItemCommonCardView
       mode="snippet"
@@ -70,8 +72,8 @@ function SnippetView({
       commentsCount={item.commentsCount}
       onCommentsClick={onCommentsClick}
       onMoreClick={onCommentsClick}
-      onLike={() => mark("like")}
-      onDislike={() => mark("dislike")}
+      onLike={like}
+      onDislike={dislike}
       canInteract={canInteract}
       isPending={isPending}
     />
