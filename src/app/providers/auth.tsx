@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { http, toHttpError } from "../../shared/api/http";
+import { http } from "../../shared/api/http";
+import { toAppError } from "../../shared/api/app-error";
 import { unwrapData } from "../../shared/api/normalize";
 import { AuthContext, type User } from "./auth-context";
 
@@ -38,7 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await http.post("/auth/login", { username, password });
       await refresh();
     } catch (e) {
-      const err = toHttpError(e);
+      const err = toAppError(e);
       const error = new Error(err.message || "Login failed");
       (error as Error & { status?: number }).status = err.status;
       throw error;
@@ -58,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await http.post("/register", { username, password });
     } catch (e) {
-      const err = toHttpError(e);
+      const err = toAppError(e);
       const error = new Error(err.message || "Register failed");
       (error as Error & { status?: number }).status = err.status;
       throw error;

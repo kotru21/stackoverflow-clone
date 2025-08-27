@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { http, toHttpError } from "../api/http";
+import { http } from "../api/http";
+import { toAppError } from "../api/app-error";
 import { useQueryClient } from "@tanstack/react-query";
 import { emitSnippetComment } from "../socket";
 import { useAuth } from "../../app/providers/useAuth";
@@ -52,7 +53,7 @@ export function useCommentForm(snippetId: number) {
       // При socket.io обновление прилетит и так; оставим инвалидацию на случай деградации
       qc.invalidateQueries({ queryKey: ["snippet", snippetId] });
     } catch (e) {
-      const err = toHttpError(e);
+      const err = toAppError(e);
       setError(err.message || "Не удалось отправить комментарий");
     } finally {
       setPending(false);

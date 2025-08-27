@@ -1,11 +1,11 @@
 import {
-  useMutation,
   useQuery,
   useInfiniteQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 import { http } from "../../shared/api/http";
 import { normalizePaginated, unwrapData } from "../../shared/api/normalize";
+import { useApiMutation } from "@/shared/hooks/useApiMutation";
 import type { Paginated } from "../../shared/types/pagination";
 import type { User, UserStatistic } from "./types";
 
@@ -109,32 +109,31 @@ export function useMe() {
 
 export function useUpdateMe() {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (payload: { username: string }) => {
+  return useApiMutation<unknown, { username: string }>({
+    mutationFn: async (payload) => {
       const res = await http.patch(`/me`, payload);
       return res.data;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["me"] });
     },
+    notifySuccessMessage: "Профиль обновлён",
   });
 }
 
 export function useUpdatePassword() {
-  return useMutation({
-    mutationFn: async (payload: {
-      oldPassword: string;
-      newPassword: string;
-    }) => {
+  return useApiMutation<unknown, { oldPassword: string; newPassword: string }>({
+    mutationFn: async (payload) => {
       const res = await http.patch(`/me/password`, payload);
       return res.data;
     },
+    notifySuccessMessage: "Пароль обновлён",
   });
 }
 
 export function useDeleteMe() {
   const qc = useQueryClient();
-  return useMutation({
+  return useApiMutation<unknown, void>({
     mutationFn: async () => {
       const res = await http.delete(`/me`);
       return res.data;
@@ -143,5 +142,6 @@ export function useDeleteMe() {
       qc.invalidateQueries({ queryKey: ["me"] });
       qc.invalidateQueries({ queryKey: ["users"] });
     },
+    notifySuccessMessage: "Аккаунт удалён",
   });
 }

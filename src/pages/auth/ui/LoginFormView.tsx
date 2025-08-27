@@ -10,7 +10,6 @@ export type LoginFormViewProps = {
   errors?: {
     username?: string;
     password?: string;
-    root?: string;
   };
   isSubmitting?: boolean;
 };
@@ -47,7 +46,6 @@ function LoginFormView({
             <p className="text-xs text-red-600 mt-1">{errors.password}</p>
           )}
         </div>
-        {errors?.root && <p className="text-xs text-red-600">{errors.root}</p>}
         <Button
           type="submit"
           disabled={isSubmitting}

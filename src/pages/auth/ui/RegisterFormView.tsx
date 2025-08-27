@@ -12,7 +12,6 @@ export type RegisterFormViewProps = {
     username?: string;
     password?: string;
     confirm?: string;
-    root?: string;
   };
   isSubmitting?: boolean;
 };
@@ -61,7 +60,6 @@ function RegisterFormView({
             <p className="text-xs text-red-600 mt-1">{errors.confirm}</p>
           )}
         </div>
-        {errors?.root && <p className="text-xs text-red-600">{errors.root}</p>}
         <Button
           type="submit"
           disabled={isSubmitting}

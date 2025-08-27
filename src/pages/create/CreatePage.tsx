@@ -12,7 +12,7 @@ export default function CreatePage() {
   const snippetForm = useSnippetForm();
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow space-y-6">
+    <div className="bg-white text-black border border-neutral-200 dark:bg-neutral-800 dark:text-white dark:border-neutral-700 p-6 rounded-lg shadow space-y-6">
       {/* Tabs */}
       <div className="flex gap-4 border-b">
         <Button
@@ -35,13 +35,13 @@ export default function CreatePage() {
       {mode === "question" && (
         <form onSubmit={questionForm.onSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Заголовок <span className="text-red-500">*</span>
             </label>
             <input
               {...questionForm.register("title")}
               type="text"
-              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border rounded-lg px-3 py-2 bg-white text-black dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400"
               placeholder="Введите заголовок вопроса..."
             />
             {questionForm.errors.title && (
@@ -52,13 +52,13 @@ export default function CreatePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Описание <span className="text-red-500">*</span>
             </label>
             <textarea
               {...questionForm.register("description")}
               rows={4}
-              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border rounded-lg px-3 py-2 bg-white text-black dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400"
               placeholder="Опишите вашу проблему подробно..."
             />
             {questionForm.errors.description && (
@@ -69,7 +69,7 @@ export default function CreatePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Прикрепленный код (опционально)
             </label>
             <CodeEditor
@@ -105,13 +105,13 @@ export default function CreatePage() {
       {mode === "snippet" && (
         <form onSubmit={snippetForm.onSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium dark:text-gray-300 mb-1">
               Язык программирования <span className="text-red-500">*</span>
             </label>
             <input
               {...snippetForm.register("language")}
               type="text"
-              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border rounded-lg px-3 py-2 bg-white text-black dark:bg-neutral-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 dark:focus:border-blue-400"
               placeholder="JavaScript, Python, Java, C/C++, C#, Go, Kotlin, Ruby"
             />
             {snippetForm.errors.language && (
@@ -119,13 +119,13 @@ export default function CreatePage() {
                 {snippetForm.errors.language.message}
               </p>
             )}
-            <p className="text-gray-500 text-xs mt-1">
+            <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">
               Допустимые: JavaScript, Python, Java, C/C++, C#, Go, Kotlin, Ruby
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Код <span className="text-red-500">*</span>
             </label>
             <CodeEditor

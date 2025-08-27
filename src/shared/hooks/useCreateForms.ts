@@ -8,7 +8,7 @@ import {
   normalizeLanguageInput,
   SUPPORTED_LANG_HINT,
 } from "../services/languageService";
-import { toHttpError } from "../api/http";
+import { toAppError } from "../api/app-error";
 
 // Question Form
 const questionSchema = z.object({
@@ -36,7 +36,7 @@ export function useQuestionForm() {
         navigate("/");
       }
     } catch (e) {
-      const err = toHttpError(e);
+      const err = toAppError(e);
       form.setError("root", { message: err.message });
       throw e;
     }
@@ -86,7 +86,7 @@ export function useSnippetForm() {
         navigate("/");
       }
     } catch (e) {
-      const err = toHttpError(e);
+      const err = toAppError(e);
       form.setError("root", { message: err.message });
       throw e;
     }

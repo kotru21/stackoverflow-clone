@@ -2,6 +2,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/app/providers/useAuth";
+import { toAppError } from "@/shared/api/app-error";
+import { emitNotification } from "@/shared/notifications";
 import { useNavigate, useLocation } from "react-router-dom";
 import LoginFormView from "./ui/LoginFormView";
 
@@ -25,7 +27,6 @@ export default function LoginPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    setError,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
@@ -35,8 +36,11 @@ export default function LoginPage() {
       await login(data.username, data.password);
       navigate(from, { replace: true });
     } catch (e) {
-      const message = e instanceof Error ? e.message : "Ошибка входа";
-      setError("root", { message });
+      const appErr = toAppError(e);
+      emitNotification({
+        type: "error",
+        message: appErr.message || "Ошибка входа",
+      });
     }
   };
 
@@ -48,7 +52,6 @@ export default function LoginPage() {
       errors={{
         username: errors.username?.message,
         password: errors.password?.message,
-        root: errors.root?.message,
       }}
       isSubmitting={isSubmitting}
     />

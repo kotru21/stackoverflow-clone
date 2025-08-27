@@ -8,7 +8,8 @@ import {
   normalizeLanguageInput,
   SUPPORTED_LANG_HINT,
 } from "@/shared/services/languageService";
-import { toHttpError } from "@/shared/api/http";
+import { toAppError } from "@/shared/api/app-error";
+import { applyAppErrorToForm } from "@/shared/forms/applyAppError";
 
 // Question Form
 const questionSchema = z.object({
@@ -36,9 +37,9 @@ export function useQuestionForm() {
         navigate("/");
       }
     } catch (e) {
-      const err = toHttpError(e);
-      form.setError("root", { message: err.message });
-      throw e;
+      const appErr = toAppError(e);
+      applyAppErrorToForm(form, appErr);
+      throw appErr;
     }
   };
 
@@ -69,7 +70,6 @@ export function useSnippetForm() {
 
   const onSubmit = async (data: SnippetFormData) => {
     try {
-      // Валидируем язык отдельно
       const normalizedLanguage = normalizeLanguageInput(data.language);
       if (!normalizedLanguage) {
         form.setError("language", {
@@ -89,9 +89,9 @@ export function useSnippetForm() {
         navigate("/");
       }
     } catch (e) {
-      const err = toHttpError(e);
-      form.setError("root", { message: err.message });
-      throw e;
+      const appErr = toAppError(e);
+      applyAppErrorToForm(form, appErr);
+      throw appErr;
     }
   };
 

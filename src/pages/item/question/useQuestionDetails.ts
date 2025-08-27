@@ -15,10 +15,13 @@ import {
   emitAnswerDelete,
 } from "@/shared/socket";
 import type { QuestionState } from "../hooks/itemTypes";
+import { emitNotification } from "@/shared/notifications";
+import { deriveEntityAccessState } from "../utils/queryErrorState";
 
 export function useQuestionDetails(id?: string): QuestionState {
   const navigate = useNavigate();
-  const { data: questionData, status } = useQuestion(id);
+  const query = useQuestion(id);
+  const { data: questionData, status } = query;
   useQuestionAnswers(id);
   const answerForm = useAnswerForm(id || "0");
   const isOwner = useQuestionOwnership(questionData);
@@ -45,7 +48,13 @@ export function useQuestionDetails(id?: string): QuestionState {
   const cancelEdit = () => setIsEditing(false);
 
   const loading = status === "pending";
-  const notFound = status === "success" && !questionData;
+  const { notFound, forbidden } = deriveEntityAccessState(query);
+  if (forbidden) {
+    emitNotification({
+      type: "error",
+      message: "Нет прав для просмотра вопроса",
+    });
+  }
 
   const mappedQuestion = useMemo(
     () =>
@@ -64,7 +73,7 @@ export function useQuestionDetails(id?: string): QuestionState {
     mode: "question",
     loading,
     notFound,
-    error: undefined,
+    error: forbidden ? "Недостаточно прав" : undefined,
     isOwner,
     isEditing,
     startEdit,
@@ -78,7 +87,10 @@ export function useQuestionDetails(id?: string): QuestionState {
         });
         setIsEditing(false);
       } catch {
-        alert("Не удалось сохранить изменения");
+        emitNotification({
+          type: "error",
+          message: "Не удалось сохранить изменения",
+        });
       }
     },
     saving: updateQuestionMut.isPending,
@@ -88,7 +100,10 @@ export function useQuestionDetails(id?: string): QuestionState {
         await deleteQuestionMut.mutateAsync();
         navigate("/my?mode=questions");
       } catch {
-        alert("Не удалось удалить вопрос");
+        emitNotification({
+          type: "error",
+          message: "Не удалось удалить вопрос",
+        });
       }
     },
     deleting: deleteQuestionMut.isPending,
@@ -130,5 +145,4 @@ export function useQuestionDetails(id?: string): QuestionState {
   } as const;
 }
 
-// default экспорт не обязателен, но оставим для совместимости
 export default useQuestionDetails;

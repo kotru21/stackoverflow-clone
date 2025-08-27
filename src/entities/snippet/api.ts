@@ -1,6 +1,5 @@
 import {
   useInfiniteQuery,
-  useMutation,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
@@ -8,6 +7,7 @@ import { http } from "../../shared/api/http";
 import type { Snippet, SnippetMark, Comment as SnippetComment } from "./types";
 import type { Paginated } from "../../shared/types/pagination";
 import { normalizePaginated, unwrapData } from "../../shared/api/normalize";
+import { useApiMutation } from "@/shared/hooks/useApiMutation";
 
 export function useSnippets(params: {
   page?: number;
@@ -114,8 +114,8 @@ export function useSnippet(id?: number) {
 
 export function useMarkSnippet(id: number) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (mark: SnippetMark) => {
+  return useApiMutation<SnippetMark, SnippetMark>({
+    mutationFn: async (mark) => {
       await http.post(`/snippets/${id}/mark`, { mark });
       return mark;
     },
@@ -123,28 +123,32 @@ export function useMarkSnippet(id: number) {
       qc.invalidateQueries({ queryKey: ["snippets"] });
       qc.invalidateQueries({ queryKey: ["snippet", id] });
     },
+    notifySuccessMessage: () => undefined,
+    suppressErrorToast: true,
   });
 }
 
 export function useCreateSnippet() {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (dto: { code: string; language: string }) => {
+  return useApiMutation<
+    Snippet & { id: number },
+    { code: string; language: string }
+  >({
+    mutationFn: async (dto) => {
       const res = await http.post<unknown>("/snippets", dto);
-      const created = unwrapData<Snippet & { id: number }>(res.data as unknown);
-      return created;
+      return unwrapData<Snippet & { id: number }>(res.data as unknown);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["snippets"] });
     },
+    notifySuccessMessage: "Сниппет создан",
   });
 }
 
 export function useUpdateSnippet(id: number) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (dto: { code?: string; language?: string }) => {
-      // API PATCH /snippets/{id}
+  return useApiMutation<unknown, { code?: string; language?: string }>({
+    mutationFn: async (dto) => {
       const res = await http.patch<unknown>(`/snippets/${id}`, dto);
       return res.data as unknown;
     },
@@ -152,12 +156,13 @@ export function useUpdateSnippet(id: number) {
       qc.invalidateQueries({ queryKey: ["snippet", id] });
       qc.invalidateQueries({ queryKey: ["snippets"] });
     },
+    notifySuccessMessage: "Сниппет обновлён",
   });
 }
 
 export function useDeleteSnippet(id: number) {
   const qc = useQueryClient();
-  return useMutation({
+  return useApiMutation<unknown, void>({
     mutationFn: async () => {
       const res = await http.delete<unknown>(`/snippets/${id}`);
       return res.data as unknown;
@@ -165,32 +170,34 @@ export function useDeleteSnippet(id: number) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["snippets"] });
     },
+    notifySuccessMessage: "Сниппет удалён",
   });
 }
 
 export function useUpdateComment(snippetId: number) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (params: { id: number; content: string }) => {
-      const { id, content } = params;
+  return useApiMutation<unknown, { id: number; content: string }>({
+    mutationFn: async ({ id, content }) => {
       const res = await http.patch(`/comments/${id}`, { content });
       return res.data as unknown;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["snippet", snippetId] });
     },
+    notifySuccessMessage: "Комментарий обновлён",
   });
 }
 
 export function useDeleteComment(snippetId: number) {
   const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: number) => {
+  return useApiMutation<unknown, number>({
+    mutationFn: async (id) => {
       const res = await http.delete(`/comments/${id}`);
       return res.data as unknown;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["snippet", snippetId] });
     },
+    notifySuccessMessage: "Комментарий удалён",
   });
 }

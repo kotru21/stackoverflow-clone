@@ -2,6 +2,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/app/providers/useAuth";
+import { toAppError } from "@/shared/api/app-error";
+import { applyAppErrorToForm } from "@/shared/forms/applyAppError";
+import { emitNotification } from "@/shared/notifications";
 import { useNavigate } from "react-router-dom";
 import RegisterFormView from "./ui/RegisterFormView";
 
@@ -28,14 +31,13 @@ type FormData = z.infer<typeof schema>;
 export default function RegisterPage() {
   const { register: doRegister } = useAuth();
   const navigate = useNavigate();
+  const form = useForm<FormData>({ resolver: zodResolver(schema) });
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
-  } = useForm<FormData>({
-    resolver: zodResolver(schema),
-  });
+  } = form;
 
   const onSubmit = async (data: FormData) => {
     const username = data.username.trim();
@@ -44,34 +46,20 @@ export default function RegisterPage() {
       await doRegister(username, password);
       navigate("/login", { replace: true });
     } catch (e: unknown) {
-      let message = e instanceof Error ? e.message : "Ошибка регистрации";
-      // Provide friendlier messages for common validation cases
-      const hasStatus =
-        typeof e === "object" &&
-        e !== null &&
-        "status" in (e as Record<string, unknown>);
-      if (hasStatus) {
-        const status = (e as Record<string, unknown>).status as
-          | number
-          | undefined;
-        if (status === 409)
-          message = "Пользователь с таким именем уже существует";
-        if (status === 422) message = message || "Некорректные данные";
+      const appErr = toAppError(e);
+      // 409 — конфликт имени
+      if (appErr.status === 409) {
+        setError("username", {
+          message: "Пользователь с таким именем уже существует",
+        });
+        return;
       }
-      // Translate server's password policy message if it comes in English
-      if (
-        /Password must contain at least one lowercase letter, one uppercase letter, one number and one symbol!?/i.test(
-          message
-        )
-      ) {
-        message =
-          "Пароль должен содержать минимум 1 строчную, 1 заглавную букву, 1 цифру и 1 символ";
+      if (appErr.kind === "validation") {
+        applyAppErrorToForm(form, appErr);
+        return;
       }
-      if (message && /^validation failed!?$/i.test(message)) {
-        message =
-          "Проверьте имя пользователя (не короче 5) и пароль (не короче 6)";
-      }
-      setError("root", { message });
+      const msg = appErr.message || "Ошибка регистрации";
+      emitNotification({ type: "error", message: msg });
     }
   };
 
@@ -85,7 +73,6 @@ export default function RegisterPage() {
         username: errors.username?.message,
         password: errors.password?.message,
         confirm: errors.confirm?.message,
-        root: errors.root?.message,
       }}
       isSubmitting={isSubmitting}
     />
