@@ -9,12 +9,16 @@
 
 - Аутентификация (login / logout / register) с сохранением сессии (cookies, `withCredentials`).
 - Вопросы: создание, редактирование, удаление, ответы, пометка ответов как корректных, live‑обновление ответов и их статусов.
+  <img src="./readme/localhost_5173__mode=questions.png">
 - Сниппеты: создание, редактирование, удаление, лайк / дизлайк, комментарии, live‑обновление комментариев.
+  <img src="./readme/localhost_5173__mode=snippets.png">
 - Пагинация и бесконечная прокрутка (`useInfiniteQuery`).
 - Оптимистические обновления + последующая валидация через инвалидацию кэша React Query.
 - Уведомления (toast-like) через простой EventEmitter на window.
 - Темизация (light / dark) с сохранением предпочтений и уважением системной темы.
+  <img src="./readme/localhost_5173__mode=questions (2).png">
 - Code editor / viewer (CodeMirror + Prism highlight).
+  <img src="./readme/localhost_5173__code_editor.png">
 - Type‑safe формы (`react-hook-form` + `zod`).
 - Alias импорты (`@`, `@/shared`, и т.д.) настроены в Vite.
 

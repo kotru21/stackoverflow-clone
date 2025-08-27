@@ -19,12 +19,16 @@ Locally the frontend uses a Vite proxy mapping `/api` → `https://codelang.verc
 
 - Authentication (login / logout / register) with session persistence (cookies, `withCredentials`).
 - Questions: create, edit, delete, answers, mark/unmark answer correctness, live updates of answers and their states.
+  <img src="./readme/localhost_5173__mode=questions.png">
 - Snippets: create, edit, delete, like / dislike, comments, live comment updates.
+  <img src="./readme/localhost_5173__mode=snippets.png">
 - Infinite pagination (`useInfiniteQuery`).
 - Optimistic updates + subsequent cache validation (React Query invalidation).
 - Toast‑like notifications via a lightweight window event emitter.
 - Theming (light / dark) with user preference persistence and system preference fallback.
+  <img src="./readme/localhost_5173__mode=questions (2).png">
 - Code editor / viewer (CodeMirror + Prism highlight).
+  <img src="./readme/localhost_5173__code_editor.png">
 - Type‑safe forms (`react-hook-form` + `zod`).
 - Path alias imports (`@`, `@/shared`, etc.) configured in Vite.
 
