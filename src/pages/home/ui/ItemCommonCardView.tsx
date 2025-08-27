@@ -12,6 +12,7 @@ export type ItemCommonCardViewProps = {
   title?: string;
   description?: string;
   answersCount?: number;
+  resolved?: boolean;
   // snippet
   language?: string;
   likesCount?: number;
@@ -33,6 +34,7 @@ export const ItemCommonCardView = memo(function ItemCommonCardView({
   title,
   description,
   answersCount,
+  resolved,
   language,
   likesCount,
   dislikesCount,
@@ -50,9 +52,23 @@ export const ItemCommonCardView = memo(function ItemCommonCardView({
       <div className="flex items-start justify-between gap-3 text-sm text-gray-600 dark:text-gray-400">
         <div className="min-w-0">
           {mode === "question" ? (
-            <h2 className="text-base font-semibold text-black dark:text-white truncate">
-              {title}
-            </h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-semibold text-black dark:text-white truncate">
+                {title}
+              </h2>
+              {typeof resolved !== "undefined" && (
+                <span
+                  className={
+                    "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide " +
+                    (resolved
+                      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
+                      : "bg-gray-200 text-gray-600 dark:bg-neutral-700 dark:text-gray-300")
+                  }
+                  title={resolved ? "Вопрос решён" : "Вопрос не решён"}>
+                  {resolved ? "Solved" : "Open"}
+                </span>
+              )}
+            </div>
           ) : (
             <span className="inline-flex items-center rounded bg-gray-100 dark:bg-neutral-700 px-2 py-0.5 text-xs font-medium text-gray-700 dark:text-gray-200">
               {language}

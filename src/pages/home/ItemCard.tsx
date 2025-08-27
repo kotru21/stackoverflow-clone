@@ -29,6 +29,10 @@ function QuestionView({
   item: Question;
   onMoreClick?: () => void;
 }) {
+  const resolved = Boolean(
+    item.isResolved ||
+      (Array.isArray(item.answers) && item.answers.some((a) => a.isCorrect))
+  );
   return (
     <ItemCommonCardView
       mode="question"
@@ -39,6 +43,7 @@ function QuestionView({
       answersCount={
         Array.isArray(item.answers) ? item.answers.length : undefined
       }
+      resolved={resolved}
       onMoreClick={onMoreClick}
     />
   );
