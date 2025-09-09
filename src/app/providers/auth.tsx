@@ -11,13 +11,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refresh = useCallback(async () => {
     try {
       const res = await http.get<unknown>("/auth");
-      const raw = unwrapData<unknown>(res.data);
+      const raw = unwrapData<unknown>(res.data) as Record<
+        string,
+        unknown
+      > | null;
       const normalized: User = {
-        id: Number((raw as Record<string, unknown>)?.["id"] ?? 0),
-        username: String((raw as Record<string, unknown>)?.["username"] ?? ""),
-        role:
-          ((raw as Record<string, unknown>)?.["role"] as "user" | "admin") ||
-          "user",
+        id: Number(raw?.id ?? 0),
+        username: String(raw?.username ?? ""),
+        role: (raw?.role as "user" | "admin") || "user",
       };
       setUser(normalized);
     } catch {
