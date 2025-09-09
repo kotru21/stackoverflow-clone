@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   useQuestion,
@@ -49,12 +49,15 @@ export function useQuestionDetails(id?: string): QuestionState {
 
   const loading = status === "pending";
   const { notFound, forbidden } = deriveEntityAccessState(query);
-  if (forbidden) {
-    emitNotification({
-      type: "error",
-      message: "Нет прав для просмотра вопроса",
-    });
-  }
+
+  useEffect(() => {
+    if (forbidden) {
+      emitNotification({
+        type: "error",
+        message: "Нет прав для просмотра вопроса",
+      });
+    }
+  }, [forbidden]);
 
   const mappedQuestion = useMemo(
     () =>
