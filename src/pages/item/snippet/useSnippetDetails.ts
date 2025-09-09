@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   useSnippet,
@@ -46,12 +46,15 @@ export function useSnippetDetails(rawId?: string): SnippetState {
 
   const loading = status === "pending";
   const { notFound, forbidden } = deriveEntityAccessState(query);
-  if (forbidden) {
-    emitNotification({
-      type: "error",
-      message: "Нет прав для просмотра сниппета",
-    });
-  }
+
+  useEffect(() => {
+    if (forbidden) {
+      emitNotification({
+        type: "error",
+        message: "Нет прав для просмотра сниппета",
+      });
+    }
+  }, [forbidden]);
 
   const mappedSnippet = useMemo(
     () =>
