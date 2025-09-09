@@ -1,7 +1,19 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { http } from "../../shared/api/http";
-import { toAppError } from "../../shared/api/app-error";
-import { unwrapData } from "../../shared/api/normalize";
+import { useCallback, useEffect, useState } from "react";
+import { z } from "zod";
+
+const userSchema = z.object({
+  id: z.coerce.number().int().nonnegative().default(0),
+  username: z.coerce.string().trim().default(""),
+  role: z.union([z.literal("user"), z.literal("admin")]).default("user"),
+});
+
+const parseUser = (raw: unknown): User => {
+  const data = userSchema.parse(raw);
+  return { id: data.id, username: data.username, role: data.role };
+};
+import { http } from "@/shared/api/http";
+import { toAppError } from "@/shared/api/app-error";
+import { unwrapData } from "@/shared/api/normalize";
 import { AuthContext, type User } from "./auth-context";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -11,29 +23,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refresh = useCallback(async () => {
     try {
       const res = await http.get<unknown>("/auth");
-      const raw = unwrapData<unknown>(res.data) as Record<
-        string,
-        unknown
-      > | null;
-      const normalized: User = {
-        id: Number(raw?.id ?? 0),
-        username: String(raw?.username ?? ""),
-        role: (raw?.role as "user" | "admin") || "user",
-      };
-      setUser(normalized);
+      const raw = unwrapData<unknown>(res.data);
+      setUser(parseUser(raw));
     } catch {
       setUser(null);
-    } finally {
-      setLoading(false);
     }
   }, []);
 
-  const didInit = useRef(false);
   useEffect(() => {
-    if (didInit.current) return;
-    didInit.current = true;
-    void refresh();
-  }, [refresh]);
+    // mount-only init
+    const initAuth = async () => {
+      try {
+        const res = await http.get<unknown>("/auth");
+        const raw = unwrapData<unknown>(res.data);
+        setUser(parseUser(raw));
+      } catch {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    void initAuth();
+  }, []);
 
   const login = async (username: string, password: string) => {
     try {
