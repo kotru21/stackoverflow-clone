@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   useQuestion,
@@ -72,6 +72,75 @@ export function useQuestionDetails(id?: string): QuestionState {
     [questionData]
   );
 
+  const saveEdit = useCallback(async () => {
+    try {
+      await updateQuestionMut.mutateAsync({
+        title: editTitle,
+        description: editDescription,
+        attachedCode: editQCode,
+      });
+      setIsEditing(false);
+    } catch {
+      emitNotification({
+        type: "error",
+        message: "Не удалось сохранить изменения",
+      });
+    }
+  }, [editTitle, editDescription, editQCode, updateQuestionMut]);
+
+  const deleteItem = useCallback(async () => {
+    if (!confirm("Удалить вопрос?")) return;
+    try {
+      await deleteQuestionMut.mutateAsync();
+      navigate("/my?mode=questions");
+    } catch {
+      emitNotification({
+        type: "error",
+        message: "Не удалось удалить вопрос",
+      });
+    }
+  }, [deleteQuestionMut, navigate]);
+
+  const markCorrect = useCallback(
+    (answerId: string | number) => {
+      if (!isOwner) return;
+      setAnswerStateMut.mutate({ answerId, state: "correct" });
+    },
+    [isOwner, setAnswerStateMut]
+  );
+
+  const markIncorrect = useCallback(
+    (answerId: string | number) => {
+      if (!isOwner) return;
+      setAnswerStateMut.mutate({ answerId, state: "incorrect" });
+    },
+    [isOwner, setAnswerStateMut]
+  );
+
+  const updateAnswer = useCallback(
+    (answerId: string | number, content: string) =>
+      updateAnswerMut.mutate(
+        { answerId, content },
+        {
+          onSuccess: () =>
+            emitAnswerUpdate({
+              questionId: id || "0",
+              answerId,
+              content,
+            }),
+        }
+      ),
+    [id, updateAnswerMut]
+  );
+
+  const deleteAnswer = useCallback(
+    (answerId: string | number) =>
+      deleteAnswerMut.mutate(answerId, {
+        onSuccess: () => emitAnswerDelete({ questionId: id || "0", answerId }),
+      }),
+    [id, deleteAnswerMut]
+  );
+
   return {
     mode: "question",
     loading,
@@ -81,34 +150,9 @@ export function useQuestionDetails(id?: string): QuestionState {
     isEditing,
     startEdit,
     cancelEdit,
-    saveEdit: async () => {
-      try {
-        await updateQuestionMut.mutateAsync({
-          title: editTitle,
-          description: editDescription,
-          attachedCode: editQCode,
-        });
-        setIsEditing(false);
-      } catch {
-        emitNotification({
-          type: "error",
-          message: "Не удалось сохранить изменения",
-        });
-      }
-    },
+    saveEdit,
     saving: updateQuestionMut.isPending,
-    deleteItem: async () => {
-      if (!confirm("Удалить вопрос?")) return;
-      try {
-        await deleteQuestionMut.mutateAsync();
-        navigate("/my?mode=questions");
-      } catch {
-        emitNotification({
-          type: "error",
-          message: "Не удалось удалить вопрос",
-        });
-      }
-    },
+    deleteItem,
     deleting: deleteQuestionMut.isPending,
     question: mappedQuestion,
     edit: {
@@ -121,30 +165,10 @@ export function useQuestionDetails(id?: string): QuestionState {
     },
     answerForm,
     markPending: setAnswerStateMut.isPending,
-    markCorrect: (answerId: string | number) => {
-      if (!isOwner) return;
-      setAnswerStateMut.mutate({ answerId, state: "correct" });
-    },
-    markIncorrect: (answerId: string | number) => {
-      if (!isOwner) return;
-      setAnswerStateMut.mutate({ answerId, state: "incorrect" });
-    },
-    updateAnswer: (answerId: string | number, content: string) =>
-      updateAnswerMut.mutate(
-        { answerId, content },
-        {
-          onSuccess: () =>
-            emitAnswerUpdate({
-              questionId: id || "0",
-              answerId,
-              content,
-            }),
-        }
-      ),
-    deleteAnswer: (answerId: string | number) =>
-      deleteAnswerMut.mutate(answerId, {
-        onSuccess: () => emitAnswerDelete({ questionId: id || "0", answerId }),
-      }),
+    markCorrect,
+    markIncorrect,
+    updateAnswer,
+    deleteAnswer,
   } as const;
 }
 

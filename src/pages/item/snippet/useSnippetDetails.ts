@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   useSnippet,
@@ -77,52 +77,36 @@ export function useSnippetDetails(rawId?: string): SnippetState {
     [snippetData]
   );
 
-  return {
-    mode: "snippet",
-    loading,
-    notFound,
-    error: forbidden ? "Недостаточно прав" : undefined,
-    isOwner,
-    isEditing,
-    startEdit,
-    cancelEdit,
-    saveEdit: async () => {
-      try {
-        await updateSnippetMut.mutateAsync({
-          language: editLanguage,
-          code: editCode,
-        });
-        setIsEditing(false);
-      } catch {
-        emitNotification({
-          type: "error",
-          message: "Не удалось сохранить изменения",
-        });
-      }
-    },
-    saving: updateSnippetMut.isPending,
-    deleteItem: async () => {
-      if (!confirm("Удалить сниппет?")) return;
-      try {
-        await deleteSnippetMut.mutateAsync();
-        navigate("/my?mode=snippets");
-      } catch {
-        emitNotification({
-          type: "error",
-          message: "Не удалось удалить сниппет",
-        });
-      }
-    },
-    deleting: deleteSnippetMut.isPending,
-    snippet: mappedSnippet,
-    edit: {
-      language: editLanguage,
-      code: editCode,
-      setLanguage: setEditLanguage,
-      setCode: setEditCode,
-    },
-    commentForm,
-    updateComment: (id: number | string, content: string) =>
+  const saveEdit = useCallback(async () => {
+    try {
+      await updateSnippetMut.mutateAsync({
+        language: editLanguage,
+        code: editCode,
+      });
+      setIsEditing(false);
+    } catch {
+      emitNotification({
+        type: "error",
+        message: "Не удалось сохранить изменения",
+      });
+    }
+  }, [editLanguage, editCode, updateSnippetMut]);
+
+  const deleteItem = useCallback(async () => {
+    if (!confirm("Удалить сниппет?")) return;
+    try {
+      await deleteSnippetMut.mutateAsync();
+      navigate("/my?mode=snippets");
+    } catch {
+      emitNotification({
+        type: "error",
+        message: "Не удалось удалить сниппет",
+      });
+    }
+  }, [deleteSnippetMut, navigate]);
+
+  const updateComment = useCallback(
+    (id: number | string, content: string) =>
       updateCommentMut.mutate(
         { id: Number(id), content },
         {
@@ -134,11 +118,41 @@ export function useSnippetDetails(rawId?: string): SnippetState {
             }),
         }
       ),
-    deleteComment: (id: number | string) =>
+    [numericId, updateCommentMut]
+  );
+
+  const deleteComment = useCallback(
+    (id: number | string) =>
       deleteCommentMut.mutate(Number(id), {
         onSuccess: () =>
           emitSnippetCommentDelete({ snippetId: numericId || 0, id }),
       }),
+    [numericId, deleteCommentMut]
+  );
+
+  return {
+    mode: "snippet",
+    loading,
+    notFound,
+    error: forbidden ? "Недостаточно прав" : undefined,
+    isOwner,
+    isEditing,
+    startEdit,
+    cancelEdit,
+    saveEdit,
+    saving: updateSnippetMut.isPending,
+    deleteItem,
+    deleting: deleteSnippetMut.isPending,
+    snippet: mappedSnippet,
+    edit: {
+      language: editLanguage,
+      code: editCode,
+      setLanguage: setEditLanguage,
+      setCode: setEditCode,
+    },
+    commentForm,
+    updateComment,
+    deleteComment,
   } as const;
 }
 
