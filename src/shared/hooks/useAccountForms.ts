@@ -1,21 +1,21 @@
-import { useState, useEffect } from "react";
-import { useUpdateMe, useUpdatePassword, useMe } from "../../entities/user/api";
+import { useState } from "react";
+import { useUpdateMe, useUpdatePassword } from "../../entities/user/api";
 
-export function useAccountForms() {
-  const { data: me } = useMe();
+export type UseAccountFormsOptions = {
+  initialUsername?: string;
+};
+
+export function useAccountForms(options?: UseAccountFormsOptions) {
   const { mutateAsync: updateMe, isPending: isUpdatingMe } = useUpdateMe();
   const { mutateAsync: updatePassword, isPending: isUpdatingPassword } =
     useUpdatePassword();
 
-  const [username, setUsername] = useState(me?.username ?? "");
+  const initialUsername = options?.initialUsername ?? "";
+  const [username, setUsername] = useState(initialUsername);
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (me?.username) setUsername(me.username);
-  }, [me?.username]);
 
   const saveProfile = async () => {
     setMessage(null);
