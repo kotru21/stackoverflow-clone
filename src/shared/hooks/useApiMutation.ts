@@ -26,20 +26,20 @@ export function useApiMutation<
   } = options;
   return useMutation<TData, unknown, TVariables, TContext>({
     ...rest,
-    onError: (error, vars, ctx) => {
+    onError: (error, vars, onMutateResult, ctx) => {
       const appErr = toAppError(error);
       if (!suppressErrorToast) {
         emitNotification({ type: "error", message: appErr.message });
       }
-      onError?.(appErr, vars, ctx);
+      onError?.(appErr, vars, onMutateResult, ctx);
     },
-    onSuccess: (data, vars, ctx) => {
+    onSuccess: (data, vars, onMutateResult, ctx) => {
       let msg: string | undefined;
       if (typeof notifySuccessMessage === "string") msg = notifySuccessMessage;
       else if (typeof notifySuccessMessage === "function")
         msg = notifySuccessMessage(data);
       if (msg) emitNotification({ type: "success", message: msg });
-      onSuccess?.(data, vars, ctx);
+      onSuccess?.(data, vars, onMutateResult, ctx);
     },
   } as UseMutationOptions<TData, unknown, TVariables, TContext>);
 }
