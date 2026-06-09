@@ -15,7 +15,6 @@ export default defineConfig({
     },
   },
   server: {
-    https: true,
     proxy: {
       "/api": {
         target: "https://codelang.vercel.app",
